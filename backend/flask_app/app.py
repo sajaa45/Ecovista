@@ -1,25 +1,29 @@
 from flask import Flask
+from flask_smorest import Api
 from routes.user_routes import bp as user_Blueprint
 from routes.destination_routes import bp as destination_Blueprint
 from routes.booking_routes import bp as booking_Blueprint
 from routes.review_routes import bp as review_Blueprint
-import config
+from routes.travel_group_routes import bp as travelgroups_Blueprint
+from routes.auth_routes import bp as auth_Blueprint
+from config import Config  # Import the Config class
 from extensions import db
+from flask_migrate import Migrate
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(config.Config)
-    print(app.config['SQLALCHEMY_DATABASE_URI'])
-    # Database Configuration
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Gilmore2003*@127.0.0.1/ecovista'
-    #app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # Initialize SQLAlchemy
+    app.config.from_object(Config)  # Load configuration from Config class
+    print(app.config['SQLALCHEMY_DATABASE_URI'])  # Optional: Print the database URI for debugging
     db.init_app(app)
-
-    app.register_blueprint(user_Blueprint)
-    app.register_blueprint(destination_Blueprint)
-    app.register_blueprint(booking_Blueprint)
-    app.register_blueprint(review_Blueprint)
-
+    migrate = Migrate()
+    migrate.init_app(app, db)
+    api = Api(app)
+    with app.app_context():
+        db.create_all()  # Create database tables
+    api.register_blueprint(user_Blueprint)
+    api.register_blueprint(destination_Blueprint)
+    api.register_blueprint(booking_Blueprint)
+    api.register_blueprint(review_Blueprint)
+    api.register_blueprint(travelgroups_Blueprint)
+    api.register_blueprint(auth_Blueprint)
     return app

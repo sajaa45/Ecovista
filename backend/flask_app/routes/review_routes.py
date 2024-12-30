@@ -1,35 +1,53 @@
-from flask import Blueprint, jsonify, request
-from models.review import Review
+from flask.views import MethodView
+from flask_smorest import Blueprint, abort
+from sqlalchemy.exc import SQLAlchemyError
+from models.review import ReviewModel
 from extensions import db
+from schemas import ReviewSchema  # Assuming you have a ReviewSchema for serialization/deserialization
 
-bp = Blueprint('reviews', __name__, url_prefix='/reviews')
+bp = Blueprint('Reviews', 'reviews', description="Operations on reviews")
 
-@bp.route('/', methods=['GET'])
-def get_reviews():
-    reviews = Review.query.all()
-    return jsonify([{"id": r.id, "user_id": r.user_id, "destination_id": r.destination_id, "rating": r.rating, "comment": r.comment} for r in reviews])
+@bp.route('/review/<int:id>')
+class ReviewItem(MethodView):
+    @bp.response(200, ReviewSchema)
+    def get(self, id):
+        review = ReviewModel.query.get_or_404(id)
+        return review
 
-@bp.route('/<int:id>', methods=['GET'])
-def get_review(id):
-    review = Review.query.get_or_404(id)
-    return jsonify({"id": review.id, "user_id": review.user_id, "destination_id": review.destination_id, "rating": review.rating, "comment": review.comment, "created_at": review.created_at})
+    def delete(self, id):
+        review = ReviewModel.query.get_or_404(id)
+        db.session.delete(review)
+        db.session.commit()
+        return {"message": "ReviewModel deleted successfully."}
 
-@bp.route('/', methods=['POST'])
-def create_review():
-    data = request.json
-    review = Review(
-        user_id=data['user_id'],
-        destination_id=data['destination_id'],
-        rating=data['rating'],
-        comment=data.get('comment')
-    )
-    db.session.add(review)
-    db.session.commit()
-    return jsonify({"message": "Review created", "id": review.id}), 201
+    @bp.arguments(ReviewSchema)
+    @bp.response(200, ReviewSchema)
+    def put(self, review_data, id):
+        review = ReviewModel.query.get(id)
+        if review:
+            review.rating = review_data["rating"]
+            review.comment = review_data.get("comment", review.comment)
+        else:
+            review = ReviewModel(id=id, **review_data)
+        db.session.add(review)
+        db.session.commit()
+        return review
 
-@bp.route('/<int:id>', methods=['DELETE'])
-def delete_review(id):
-    review = Review.query.get_or_404(id)
-    db.session.delete(review)
-    db.session.commit()
-    return jsonify({"message": "Review deleted"})
+
+@bp.route('/review')
+class ReviewList(MethodView):
+    @bp.response(200, ReviewSchema(many=True))
+    def get(self):
+        reviews = ReviewModel.query.all()
+        return reviews
+
+    @bp.arguments(ReviewSchema)
+    @bp.response(201, ReviewSchema)
+    def post(self, review_data):
+        review = ReviewModel(**review_data)
+        try:
+            db.session.add(review)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error occurred while creating the review.")
+        return review

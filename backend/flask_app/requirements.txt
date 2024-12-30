@@ -2,3 +2,8 @@ Flask
 flask-sqlalchemy
 pymysql
 mysql-connector-python
+marshmallow
+python-dotenv
+flask_smorest
+flask_migrate
+flask_jwt_extended

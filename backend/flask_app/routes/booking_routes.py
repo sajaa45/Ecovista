@@ -1,63 +1,90 @@
-from flask import Blueprint, jsonify, request
-from models.booking import Booking
+from flask.views import MethodView
+from flask_smorest import Blueprint, abort
 from extensions import db
+from models.booking import BookingModel
+from models.destination import DestinationModel  # Import Destination model to query by name
+from marshmallow import ValidationError
+from schemas import BookingSchema, UserSchema, DestinationSchema
 
-bp = Blueprint('booking', __name__, url_prefix='/booking')
+bp = Blueprint('Bookings', 'booking', description="Operations on bookings")
 
-# GET: Retrieve all bookings
-@bp.route('/', methods=['GET'])
-def get_bookings():
-    bookings = Booking.query.all()
-    return jsonify([{
-        "id": b.id,
-        "user_id": b.user_id,
-        "destination_id": b.destination_id,
-        "booking_date": b.booking_date,
-        "status": b.status
-    } for b in bookings])
+@bp.route('/booking/<string:username>')
+class BookingItem(MethodView):
+    @bp.response(200, BookingSchema)
+    def get(self, username):
+        # Fetch the booking by username
+        booking = BookingModel.query.filter_by(username=username).first_or_404()
+        return booking
 
-# GET: Retrieve a specific booking by ID
-@bp.route('/<int:booking_id>', methods=['GET'])
-def get_booking(booking_id):
-    booking = Booking.query.get_or_404(booking_id)
-    return jsonify({
-        "id": booking.id,
-        "user_id": booking.user_id,
-        "destination_id": booking.destination_id,
-        "booking_date": booking.booking_date,
-        "status": booking.status
-    })
+    def delete(self, username):
+        # Fetch the booking by username and delete
+        booking = BookingModel.query.filter_by(username=username).first_or_404()
+        db.session.delete(booking)
+        db.session.commit()
+        return {"message": "Booking deleted successfully.", "username": username}
 
-# POST: Create a new booking
-@bp.route('/', methods=['POST'])
-def create_booking():
-    data = request.json
-    booking = Booking(
-        user_id=data['user_id'],
-        destination_id=data['destination_id'],
-        booking_date=data['booking_date'],
-        status=data.get('status', 'pending')  # Default status is 'pending'
-    )
-    db.session.add(booking)
-    db.session.commit()
-    return jsonify({"message": "Booking created", "id": booking.id}), 201
+    @bp.arguments(BookingSchema)
+    @bp.response(200, BookingSchema)
+    def put(self, booking_data, username):
+        # Fetch the booking by username
+        booking = BookingModel.query.filter_by(username=username).first()
 
-# PUT: Update a specific booking by ID
-@bp.route('/<int:booking_id>', methods=['PUT'])
-def update_booking(booking_id):
-    data = request.json
-    booking = Booking.query.get_or_404(booking_id)
-    booking.user_id = data.get('user_id', booking.user_id)
-    booking.destination_id = data.get('destination_id', booking.destination_id)
-    booking.booking_date = data.get('booking_date', booking.booking_date)
-    booking.status = data.get('status', booking.status)
-    db.session.commit()
-    return jsonify({"message": "Booking updated", "id": booking.id})
+        # Retrieve the destination_id by looking up the destination name
+        destination_name = booking_data.get("destination")
+        destination = DestinationModel.query.filter_by(name=destination_name).first()
+        if not destination:
+            abort(404, message="Destination not found.")
 
-# DELETE: Delete a specific booking by ID
-@bp.route('/<int:booking_id>', methods=['DELETE'])
-def delete_booking(booking_id):
-    booking = Booking.query.get_or_404(booking_id)
-    db.session.delete(booking)
-    db.session.commit()
-    return jsonify({"message": "Booking deleted", "id": booking_id})
+        # Update booking if found or create a new one
+        if booking:
+            booking.destination_id = destination.id
+            booking.destination = destination_name
+            booking.from_date = booking_data["from_date"]
+            booking.to_date = booking_data["to_date"]
+            booking.status = booking_data["status"]
+        else:
+            # If no booking exists, create a new one
+            booking = BookingModel(
+                username=username,
+                destination_id=destination.id,
+                destination=booking_data["destination"],
+                from_date=booking_data["from_date"],
+                to_date=booking_data.get("to_date"),
+                status=booking_data["status"]
+            )
+
+        db.session.add(booking)
+        db.session.commit()
+        return booking
+
+
+@bp.route('/booking')
+class BookingList(MethodView):
+    @bp.response(200, BookingSchema(many=True))
+    def get(self):
+        # Get all bookings
+        bookings = BookingModel.query.all()
+        return bookings
+
+    @bp.arguments(BookingSchema)
+    @bp.response(201, BookingSchema)
+    def post(self, booking_data):
+        # Retrieve the destination_id by looking up the destination name
+        destination_name = booking_data.get("destination")
+        destination = DestinationModel.query.filter_by(name=destination_name).first()
+        if not destination:
+            abort(404, message="Destination not found.")
+
+        # Handle new booking post request
+        booking = BookingModel(
+            username=booking_data["username"],
+            destination_id=destination.id,
+            destination=destination_name,
+            from_date=booking_data["from_date"],
+            to_date=booking_data.get("to_date"),
+            status=booking_data["status"]
+        )
+
+        db.session.add(booking)
+        db.session.commit()
+        return booking
