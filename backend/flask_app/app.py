@@ -9,9 +9,11 @@ from routes.auth_routes import bp as auth_Blueprint
 from config import Config  # Import the Config class
 from extensions import db
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(Config)  # Load configuration from Config class
     print(app.config['SQLALCHEMY_DATABASE_URI'])  # Optional: Print the database URI for debugging
     db.init_app(app)

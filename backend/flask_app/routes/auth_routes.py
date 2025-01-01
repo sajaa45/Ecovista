@@ -1,10 +1,13 @@
 from flask.views import MethodView
+import config
 from flask import request, session, jsonify, abort
 from flask_smorest import Blueprint
 from werkzeug.security import check_password_hash
 from models.user import UserModel
 from schemas import UserSchema
 from extensions import db
+import jwt
+import datetime
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -12,6 +15,13 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def is_strong_password(password):
     # Implement your password validation logic here
     return len(password) >= 8 and any(c.isupper() for c in password) and any(c.isdigit() for c in password) and any(c in "!@#$%^&*()_+" for c in password)
+
+def generate_token(user_id, role):
+    # Example: Create a token that expires in 1 hour
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    token = jwt.encode({'user_id': user_id, 'role':role ,'exp': expiration_time}, config.Config.SECRET_KEY, algorithm='HS256')
+    
+    return token
 
 @bp.route('/sign-up')
 class SignUp(MethodView):
@@ -42,10 +52,11 @@ class SignUp(MethodView):
             role=role,
             image_url=user_data.get('image_url')  # Use get to avoid KeyError if not provided
         )
+        token = generate_token(user.id, role)
 
         db.session.add(user)
         db.session.commit()
-        return jsonify({"message": "User created successfully. Please log in."}), 201
+        return jsonify({"message": "User created successfully. Please log in.", "token":token}), 201
 
 @bp.route('/login')
 class Login(MethodView):
@@ -71,9 +82,8 @@ class Login(MethodView):
         # Set session data on successful login
         session['user_id'] = user.id
         session['username'] = user.username
-        session['role'] = user.role  
-
-        return jsonify({"message": "Login successful"}), 200
+        token = generate_token(user.id, user.role)
+        return jsonify({"message": "Login successful", "token":token}), 200
 
 @bp.route('/logout')
 class Logout(MethodView):

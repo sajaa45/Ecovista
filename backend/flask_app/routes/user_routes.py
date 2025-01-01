@@ -6,8 +6,32 @@ from models.user import UserModel
 from schemas import UserSchema
 from uuid import uuid4
 from werkzeug.security import check_password_hash
+import jwt
+import config 
 #current_user = get_jwt_identity()
 bp = Blueprint('users', __name__, url_prefix='/users')
+
+
+
+
+def get_current_user():
+    token = request.headers.get('Authorization')  # Get token from 'Authorization' header
+    if token:
+        print(f"Received token: {token}")
+    else:
+        print("Token is missing.")
+    
+    try:
+        # Remove the 'Bearer ' prefix
+        token = token.split(" ")[1]
+        decoded_token = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
+        user_id = decoded_token.get('user_id')
+        role = decoded_token.get('role') 
+        return role
+    except jwt.ExpiredSignatureError:
+        abort(401, message="Token has expired.")
+    except jwt.InvalidTokenError:
+        abort(401, message="Token is invalid.")
 
 
 
@@ -16,16 +40,15 @@ class UserList(MethodView):
     @bp.response(200, UserSchema(many=True))
     def get(self):
         """Get all users"""
+        current_user = get_current_user() 
         # Ensure the user is an admin before showing all users
-        if request.args.get("role") != "admin":
+        if current_user != "admin":
             # Non-admin users only see specific fields
             users = UserModel.query.all()
-            return UserSchema(many=True, exclude=("password","id", "role")).dump(users), 200
-        
+            return UserSchema(many=True, exclude=("password", "id", "role")).dump(users), 200
+
+        # Admin users can see all user data
         return UserModel.query.all()
-
-    
-
 
 
 @bp.route('/<string:username>')
@@ -34,13 +57,13 @@ class UserDetail(MethodView):
     def get(self, username):
         """Get a single user by username"""
         user = UserModel.query.filter_by(username=username).first_or_404()
+        
+        # Get the current logged-in user from the JWT token
+        current_user = get_current_user()  # This will return 'username' from JWT
 
         # Check if the current user is an admin or the user themselves
-        current_user = request.args.get('current_user')  # Adjust this based on how you fetch the logged-in user
-        
-        # If the current user is neither an admin nor the target user, limit data visibility
         if current_user != username and current_user != "admin":
-            # Return only the first_name, last_name, email, and username for non-admin users
+            # Non-admin users only see specific fields
             user_data = {
                 "first_name": user.first_name,
                 "last_name": user.last_name,
@@ -57,10 +80,10 @@ class UserDetail(MethodView):
     def delete(self, username):
         """Delete a user by username"""
         user = UserModel.query.filter_by(username=username).first_or_404()
+
+        current_user = get_current_user()  # Get the current logged-in user from the JWT token
         
-        current_user = request.args.get('current_user')  # Adjust this based on how you fetch the logged-in user
-        
-        #  only the admin or the user himself can delete the account
+        # Only the admin or the user themselves can delete the account
         if current_user != username and current_user != "admin":
             abort(403, message="Permission denied.")
         
@@ -72,7 +95,7 @@ class UserDetail(MethodView):
     @bp.response(200, UserSchema)
     def put(self, user_data, username):
         """Update an existing user by username"""
-         # Fetch the user by the provided username
+        # Fetch the user by the provided username
         user = UserModel.query.filter_by(username=username).first()
 
         if not user:
@@ -92,7 +115,7 @@ class UserDetail(MethodView):
         user.first_name = user_data['first_name']
         user.last_name = user_data['last_name']
         user.email = user_data['email']
-        user.image=user_data['image_url']
+        user.image = user_data['image_url']
         db.session.commit()
         
         return user
