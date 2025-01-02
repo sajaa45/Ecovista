@@ -1,38 +1,223 @@
-.App {
+/* LoginPage.css */
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+.login-container {
+  display: flex;
+  justify-content: space-between	; /* Move the form to the right side */
+  align-items: center;
+  
+  height: 100vh;
+  background: url('./login.jpg') no-repeat center center;
+  background-size: cover;
+  padding-bottom: 30px;
+  box-sizing: border-box;
+  background-clip: content-box;
+}
+h3 {
+  margin-left:30px;
+  text-align: left;   /* Align the text to the left */
+  font-size: 60px;    /* Adjust font size if necessary */
+  margin-bottom: 200px; /* Add space below the header */
+  color: #F7F8E2;
+  font-family:Source Serif Pro;
+}
+.login-form {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  font-family:Source Serif Pro;
+  background: rgba(247, 248, 226, 0.8);
+  padding: 40px;
+  border-radius: 8px;
+  margin-right:50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  flex-direction: column; /* Stack the items vertically */
+  width: 450px; /* Adjust the width as needed */
+  height: 75%; /* Adjust the height as needed */
+  max-height: 580px; 
+}
+
+.login-form h1 {
+  margin-top:70px;
+  text-align: center;
+  width:100%;/* Space below the header */
+  color: #3A3C42;
+  
+}
+
+.login-form label {
+  display: block;
+  width: 100%;
+  margin-bottom: 5px ;
+  margin-left:22px;
+  margin-top: 5px; /* Space between input fields */
+  font-weight: bold;
+  color: #3A3C42;
+}
+.form-group{display: flex;
+  flex-direction: column;
+  align-items: flex-start; }
+.login-form p {
+  display: block;
+  text-align:center;
+  width: 100%;
+  margin-bottom: 15px;
+  margin-top: 25px; /* Space between input fields */
+  font-weight: bold;
+  color: #3A3C42;
+}
+.login-form p a{
+  color: #3A3C42;
+}
+
+.login-form input {
+  margin: 5px 30px 15px 20px ;
+  padding: 10px ;
+  font-family:Source Serif Pro;
+  height:30px;
+  width: 90%; /* Width of the input fields */
+   /* Space between input fields */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  color: #3A3C42;
+}
+
+.login-form .button-container {
+  display: flex;
+  justify-content: center; /* Centers the button horizontally */
+  width: 100%;
+}
+.login-form #login-button {
+  padding: 10px 20px;
+  background-color: #175919; /* Button color */
+  color: #F5F5F5;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  height:50px;
+  width: 150px;
+  font-size:20px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  font-family:Source Serif Pro;
+}
+
+.login-form #login-button :hover {
+  background-color: #6C9E6E;  /* Darker button color on hover */
+}
+
+
+/* Navbar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left:  30px;
+  padding-right:  25px;
+  background-color: #F5F5F5;
+  color: #175919;
+}
+
+.navbar-logo img {
+  height: 50px;
+  margin: 0;
+}
+
+.navbar-menu {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu li {
+  margin-left: 30px;
+  font-size:17px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.navbar-menu a {
+  text-decoration: none;
+  color: #175919;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.navbar-menu a:hover {
+  color: #6C9E6E;
+}
+.navbar-menu li:not(:has(a#login)) {
+  padding-top: 10px; /* Adjust the padding-top value as needed */
+}
+/* Navbar item with the ID 'login' */
+#login {
+  padding:10px;
+  background-color: #175919; /* Dark green background for the login item */
+  border-radius: 20px;
+  color: #F5F5F5;
+  display: flex;
+  justify-content: center; /* Center the text inside */
+  align-items: center;
+}
+
+#login:hover {
+  background-color: #6C9E6E; 
+}
+
+#login a:hover {
+  color: #175919; /* Change text color when hovering over the link */
+  
+}
+/* OAuth buttons container */
+.oauth-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 15px; 
+  width: 100%;
+  margin-top: -25px;
+}
+
+/* OAuth button style */
+.oauth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 90px;
+  cursor: pointer;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* OAuth icon styles */
+.oauth-icon {
+  width: 28px; /* Adjust icon size */
+  height: 28px; /* Space between the icon and the text */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.values  {
+  display: block;
+  width: 100%;
+  margin-top: 20px;  /* Adjust as needed */
+  margin-bottom: 20px;  /* Adjust as needed */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.footer {
+  margin-top:-29px;
   display: flex;
-  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 20px;
+  background-color: #F5F5F5;
 }
 
-.App-link {
-  color: #61dafb;
+.footer-logo {
+  width: 100px; /* Adjust size as needed */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.contact-info {
+  text-align: left; 
+  margin-left:20px;/* Align text to the right */
 }
+
