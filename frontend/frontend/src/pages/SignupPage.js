@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService"; // Assume you have a register function
 import '../styles/App.css'; // Add this line to import your CSS file
+import FacebookIcon from './facebook.png'; // Import the Facebook image
+import GoogleIcon from './google.png';
 
 function SignupPage() {
     const [firstName, setFirstName] = useState("");
@@ -27,16 +29,17 @@ function SignupPage() {
     };
 
     return (
-        <div className="signup-container">
-            <h3 className="signup-header">Join us and explore the wonders of Tunisian nature with Ecovista</h3>
+        <div className="login-container">
+            <h3 className="signup-header">Join us and explore the wonders<br/> of Tunisian nature with Ecovista</h3>
             <form onSubmit={handleSubmit} className="signup-form">
                 <h1>Create an account!</h1>
                 <div className="form-group">
+                <div className="name-input">
                     <label>First Name</label>
-                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    <input ctype="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                     <label>Last Name</label>
                     <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                </div>
+                </div></div>
                 <div className="form-group">
                     <label>Username</label>
                     <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -57,6 +60,14 @@ function SignupPage() {
                 <div className="button-container">
                     <button id="signup-button" type="submit">Sign Up</button>
                 </div>
+                <div className="oauth-container">
+                    <button className="oauth-button facebook-button">
+                    <img src={FacebookIcon} alt="Facebook" className="oauth-icon" />
+                    </button>
+                    <button className="oauth-button gmail-button">
+                    <img src={GoogleIcon} alt="Google" className="oauth-icon" />
+                    </button>
+                    </div> 
             </form>
         </div>
     );

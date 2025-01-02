@@ -24,7 +24,7 @@ h3 {
   color: #F7F8E2;
   font-family:Source Serif Pro;
 }
-.login-form {
+.login-form, .signup-form {
   display: flex;
   flex-direction: column; /* Stack elements vertically */
   font-family:Source Serif Pro;
@@ -46,8 +46,40 @@ h3 {
   color: #3A3C42;
   
 }
+.name-group {
+  display: flex;
+  justify-content: space-between;
+}
 
-.login-form label {
+.name-input {
+  flex: 1; /* Allow inputs to take equal space */
+  margin-right: 10px; /* Space between inputs */
+}
+
+.name-input:last-child {
+  margin-right: 0; /* Remove margin from the last input */
+}
+
+.name-input input {
+  width: 100%; /* Make input fields take full width of their container */
+  padding-right: 8px; /* Add some padding for better appearance */
+  padding-left: 8px;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.signup-form {
+  max-width: 400px; /* Set a max width for the form */
+  margin: auto; /* Center the form */
+}
+.signup-form h1
+{
+  margin-top:10px;
+  text-align: center;
+  width:100%;/* Space below the header */
+  color: #3A3C42;
+  
+}
+.login-form label , .signup-form label{
   display: block;
   width: 100%;
   margin-bottom: 5px ;
@@ -59,7 +91,7 @@ h3 {
 .form-group{display: flex;
   flex-direction: column;
   align-items: flex-start; }
-.login-form p {
+.login-form p ,.signup-form p{
   display: block;
   text-align:center;
   width: 100%;
@@ -68,7 +100,7 @@ h3 {
   font-weight: bold;
   color: #3A3C42;
 }
-.login-form p a{
+.login-form p a, .signup-form p a{
   color: #3A3C42;
 }
 
@@ -83,13 +115,23 @@ h3 {
   border: 1px solid #ccc;
   color: #3A3C42;
 }
-
-.login-form .button-container {
+.signup-form input {
+  margin: 5px 30px 10px 20px ;
+  padding: 10px ;
+  font-family:Source Serif Pro;
+  height:20px;
+  width: 90%; /* Width of the input fields */
+   /* Space between input fields */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  color: #3A3C42;
+}
+ .button-container {
   display: flex;
   justify-content: center; /* Centers the button horizontally */
   width: 100%;
 }
-.login-form #login-button {
+.login-form #login-button , .signup-form #signup-button{
   padding: 10px 20px;
   background-color: #175919; /* Button color */
   color: #F5F5F5;
@@ -108,6 +150,9 @@ h3 {
   background-color: #6C9E6E;  /* Darker button color on hover */
 }
 
+.signup-form #signup-button :hover {
+  background-color: #6C9E6E;  /* Darker button color on hover */
+}
 
 /* Navbar.css */
 .navbar {
