@@ -35,11 +35,14 @@ function SignupPage() {
                 <h1>Create an account!</h1>
                 <div className="form-group">
                 <div className="name-input">
+                        <div style={{ flex: 1, marginRight: '10px' }}>
                     <label>First Name</label>
-                    <input ctype="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                </div>
+                <div style={{ flex: 1 }}>
                     <label>Last Name</label>
-                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                </div></div>
+                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} /></div>
+                    </div></div>
                 <div className="form-group">
                     <label>Username</label>
                     <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />

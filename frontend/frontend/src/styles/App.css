@@ -38,6 +38,9 @@ h3 {
   height: 75%; /* Adjust the height as needed */
   max-height: 580px; 
 }
+.signup-form{
+  height: 90%;
+}
 
 .login-form h1 {
   margin-top:70px;
@@ -48,23 +51,22 @@ h3 {
 }
 .name-group {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .name-input {
-  flex: 1; /* Allow inputs to take equal space */
-  margin-right: 10px; /* Space between inputs */
+  display: flex;
+  justify-content: space-between;
 }
 
 .name-input:last-child {
   margin-right: 0; /* Remove margin from the last input */
 }
 
-.name-input input {
-  width: 100%; /* Make input fields take full width of their container */
-  padding-right: 8px; /* Add some padding for better appearance */
-  padding-left: 8px;
-  box-sizing: border-box; /* Include padding in width calculation */
+.name-input div input {
+  width: 80%; /* Make input fields take full width of their container */
+  margin-right: 8px; /* Add some padding for better appearance */
+  margin-left: 20px; /* Include padding in width calculation */
 }
 
 .signup-form {
@@ -73,7 +75,7 @@ h3 {
 }
 .signup-form h1
 {
-  margin-top:10px;
+  margin-top:-10px;
   text-align: center;
   width:100%;/* Space below the header */
   color: #3A3C42;
@@ -91,12 +93,21 @@ h3 {
 .form-group{display: flex;
   flex-direction: column;
   align-items: flex-start; }
-.login-form p ,.signup-form p{
+.login-form p {
   display: block;
   text-align:center;
   width: 100%;
   margin-bottom: 15px;
   margin-top: 25px; /* Space between input fields */
+  font-weight: bold;
+  color: #3A3C42;
+}
+.signup-form p{
+  display: block;
+  text-align:center;
+  width: 100%;
+  margin-bottom: 15px;
+  margin-top: 10px; /* Space between input fields */
   font-weight: bold;
   color: #3A3C42;
 }
