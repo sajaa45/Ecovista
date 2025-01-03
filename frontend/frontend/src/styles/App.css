@@ -4,19 +4,85 @@ html, body {
   height: 100%;
 }
 
+@keyframes backgroundChange {
+  0% {
+    opacity: 1; /* First image fully visible */
+  }
+  40% {
+    opacity: 1; /* Keep the first image fully visible */
+  }
+  50% {
+    opacity: 0; /* Start fading out the first image */
+  }
+  50% {
+    opacity: 1; /* Start fading in the second image */
+  }
+  70% {
+    opacity: 1; /* Keep the second image fully visible */
+  }
+  100% {
+    opacity: 1; /* Ensure the second image stays visible */
+  }
+}
+
 .login-container {
   display: flex;
-  justify-content: space-between	; /* Move the form to the right side */
+  justify-content: space-between; /* Move the form to the right side */
   align-items: center;
-  
   height: 100vh;
-  background: url('./login.jpg') no-repeat center center;
-  background-size: cover;
+  position: relative; /* Required for absolute positioning of the background */
   padding-bottom: 30px;
   box-sizing: border-box;
-  background-clip: content-box;
+  overflow: hidden; /* Prevent overflow of the background */
 }
-h3 {
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('./login.jpg') no-repeat center center;
+  background-size: cover;
+  animation: backgroundChange 20s infinite; /* Apply the animation over 10 seconds */
+  z-index: -1; /* Place behind other components */
+}
+
+.login-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('./beach.jpg') no-repeat center center;
+  background-size: cover;
+  opacity: 0; /* Start with the second image invisible */
+  animation: backgroundChange 20s infinite; /* Apply the same animation */
+  z-index: -1; /* Place behind other components */
+}
+
+/* Add a separate keyframe animation for the second image */
+@keyframes backgroundChangeAfter {
+  0% {
+    opacity: 0; /* Start invisible */
+  }
+  50% {
+    opacity: 1; /* Fade in */
+  }
+  70% {
+    opacity: 1; /* Keep visible */
+  }
+  100% {
+    opacity: 0; /* Fade out */
+  }
+}
+
+.login-container::after {
+  animation: backgroundChangeAfter 20s infinite; /* Apply the animation for the second image */
+}
+.login-header, .login-container .signup-header {
   margin-left:30px;
   text-align: left;   /* Align the text to the left */
   font-size: 60px;    /* Adjust font size if necessary */
@@ -157,9 +223,7 @@ h3 {
   font-family:Source Serif Pro;
 }
 
-.login-form #login-button :hover {
-  background-color: #6C9E6E;  /* Darker button color on hover */
-}
+
 
 .signup-form #signup-button :hover {
   background-color: #6C9E6E;  /* Darker button color on hover */
@@ -218,7 +282,7 @@ h3 {
   align-items: center;
 }
 
-#login:hover {
+#login:hover ,#login-button:hover{
   background-color: #6C9E6E; 
 }
 
@@ -275,5 +339,131 @@ h3 {
 .contact-info {
   text-align: left; 
   margin-left:20px;/* Align text to the right */
+}
+
+.homepage {
+  font-family: Source Serif Pro;
+  padding: 20px;
+}
+
+
+
+.header {
+  transition: background-image 1s ease-in-out, opacity 1s ease-in-out;
+  opacity: 1;
+}
+
+
+.header {
+  text-align: center;
+  color: #F5F5F5;
+  padding: 4rem 2rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
+.header h1{
+  font-size:60px;}
+  .header p{
+    font-size:20px;}
+.cta-button {
+  padding: 10px 20px;
+  background-color: #175919; /* Button color */
+  color: #F5F5F5;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  height:50px;
+  width: 150px;
+  font-size:20px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  font-family:Source Serif Pro;
+}
+
+.cta-button:hover {
+  background-color: #6C9E6E;
+}
+
+.services {
+  text-align: center;
+  z-index: 1;
+}
+
+.services-list {
+  display: flex;
+  justify-content: center;
+  
+}
+
+.service-item {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 10px;
+  width: 100px;
+  text-align: left;
+}
+.services {
+  text-align: center;
+  margin-top: 20px; /* Add some space above the services section */
+}
+
+.services h2 {
+  text-align:left;
+  font-size: 24px; /* Adjust font size if needed */
+  margin-bottom: 20px; /* Add space below the h2 */
+  display: block; /* Ensure it behaves as a block element */
+}
+
+
+.service-item {
+  width: 23%;
+  height: 350px;
+  background: #ddd;
+  border-radius: 25px;
+  border: 3px solid #4caf50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 10px;
+}
+
+.service-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.step_img {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+
+  border: 3px solid #4caf50;
+}
+.step_img img {
+  width: 100px;
+}
+
+.service-item p, .service-item h3{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  
+}
+.service-item h3{
+  font-size: 26px;
+  font-weight: bold;
+}
+.service-item p{
+  font-size: 15px;
+  padding-bottom: 40px;
 }
 

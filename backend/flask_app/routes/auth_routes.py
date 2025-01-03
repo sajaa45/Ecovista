@@ -8,6 +8,8 @@ from schemas import UserSchema
 from extensions import db
 import jwt
 import datetime
+import re
+
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -33,8 +35,7 @@ class SignUp(MethodView):
 
         # Check if password is strong
         if not is_strong_password(user_data['password']):
-            abort(400, message="Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.")
-
+            return {"error":"Password must be at least 8 characters long and include an uppercase letter, a number, and a special character."},400
         # Check if email already exists
         if UserModel.query.filter_by(email=user_data['email']).first():
             return {"error": "Email already exists."}, 400
@@ -64,26 +65,41 @@ class Login(MethodView):
         """Login a user"""
         # Get the user data from the JSON request body
         user_data = request.get_json()
-        
-        # Extract identifier (either username or email) and password
-        identifier = user_data.get("username") or user_data.get("email")  # Accept either username or email
-        password = user_data.get("password")
-        
-        if not identifier or not password:
-            return {"error":"Username or email and password are required."}, 400
 
-        # Find the user by either username or email
-        user = UserModel.query.filter((UserModel.username == identifier) | (UserModel.email == identifier)).first()
+        # Extract identifier and password
+        identifier = user_data.get("identifier")  # Unified identifier field
+        password = user_data.get("password")
+
+        # Debug: Print received data
+        print(f"Received Identifier: {identifier}, Password: {password}")
+
+        # Validate identifier
+        if not identifier :
+            return {"error": "Username or email is required."}, 400
+        # Validate inputs
+        if not password:
+            return {"error": "Password is required."}, 400
+        # Determine if identifier is email or username
+        if "@" in identifier and re.match(r"[^@]+@[^@]+\.[^@]+", identifier):
+            user = UserModel.query.filter_by(email=identifier).first()
+        else:
+            user = UserModel.query.filter_by(username=identifier).first()
+
+        # Check if the user exists
+        if not user:
+            return {"error": "User not found, try logging in again"}, 404
         
-        # Check if user exists and if password is correct (without hashing)
-        if not user or user.password != password:  # Direct comparison with plain-text password
-            return {"error": "Invalid credentials"}, 401
-        
-        # Set session data on successful login
+        # Check if the password is incorrect
+        if user.password != password:  # Direct comparison with plain-text password
+            return {"error": "Incorrect password, try again"}, 401
+
+        # Generate token and set session data
+        token = generate_token(user.id, user.role)
         session['user_id'] = user.id
         session['username'] = user.username
-        token = generate_token(user.id, user.role)
-        return jsonify({"message": "Login successful", "token":token}), 200
+
+        # Return success response
+        return jsonify({"message": "Login successful", "token": token}), 200
 
 @bp.route('/logout')
 class Logout(MethodView):
