@@ -54,14 +54,23 @@ class ActivityList(MethodView):
     def get(self):
         # Get all activities
         activities = ActivityModel.query.all()
-        return activities
+        result=[{
+            'name': activity.name,
+            'description': activity.description,
+            'duration': activity.duration
+        } for activity in activities]
+        return result
 
     @bp.arguments(ActivitySchema)
     @bp.response(201, ActivitySchema)
     def post(self, activity_data):
         # Extract the destination names from the request data
-        destination_names = activity_data.get("destinations", [])
-        
+        destination_names = activity_data.get("destinations", [])  # This should be a list of strings
+
+        # Check if destination_names is a list of strings
+        if not isinstance(destination_names, list) or not all(isinstance(name, str) for name in destination_names):
+            abort(400, message="Destinations must be a list of strings.")
+
         # Query DestinationModel to get the destinations based on the provided names
         destinations = DestinationModel.query.filter(DestinationModel.name.in_(destination_names)).all()
 

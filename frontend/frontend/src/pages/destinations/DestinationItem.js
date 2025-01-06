@@ -6,7 +6,7 @@ const DestinationItem = () => {
   const { name } = useParams(); // Get the destination name from the URL
   const [destination, setDestination] = useState(null); // State to store fetched destination details
   const [loading, setLoading] = useState(true); // Loading state
-
+  
   // Fetch data when the component mounts
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/destinations/${name}`)

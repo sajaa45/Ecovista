@@ -7,11 +7,11 @@ class DestinationSchema(Schema):
     location = fields.Str(required=True)
     activities = fields.Str()
     image_url = fields.Str()
-    activities = fields.List(fields.Nested('ActivitySchema', dump_only=True))
+    activities = fields.List(fields.Pluck('ActivitySchema', 'name'))
 class ActivitySchema(Schema):
 
     id = fields.Integer(dump_only=True)
-    name = fields.String(required=True)
+    name = fields.Str(required=True)
     description = fields.String()
     duration = fields.Integer(required=True)
     max_participants = fields.Integer(required=True)
@@ -19,7 +19,7 @@ class ActivitySchema(Schema):
     updated_at = fields.DateTime(dump_only=True)
 
     # Define the many-to-many relationship with Destination
-    destinations = fields.List(fields.String())
+    destinations = fields.List(fields.Str(), required=True) 
 
 class ReviewSchema(Schema):
     id = fields.Int(dump_only=True) 

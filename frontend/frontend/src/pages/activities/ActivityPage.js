@@ -2,49 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 
-
-const DestinationPage = () => {
-  const [destinations, setDestinations] = useState([]); // State to store fetched destinations
+const ActivityPage = () => {
+  const [activities, setActivities] = useState([]); // State to store fetched activities
   const [loading, setLoading] = useState(true); // Loading state
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   // Fetch data when the component mounts
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/destinations')
+    fetch('http://127.0.0.1:5000/activity')
       .then(response => response.json())
       .then(data => {
-        setDestinations(data); // Set the data to state
+        setActivities(data); // Set the data to state
         setLoading(false); // Set loading to false after data is fetched
       })
       .catch(error => {
-        console.error('Error fetching destinations:', error);
+        console.error('Error fetching activities:', error);
         setLoading(false); // In case of error, stop loading
       });
   }, []); // Empty dependency array to only run once when the component mounts
 
-  const handleServiceClick = (route) => {
-    navigate(`/destinations/${route}`)
+  const handleActivityClick = (route) => {
+    navigate(`/activities/${route}`);
   };
 
   return (
     <div className="Destinationpage">
-      <section id="destination-section" className="destinations">
-        <h1>Destinations To Visit</h1>
+      <section id="activity-section" className="destinations">
+        <h1>Activities</h1>
         {loading ? (
           <p>Loading...</p> // Show loading message while fetching
         ) : (
           <div className="destinations-list">
-            {destinations.map((service) => (
+            {activities.map((activity) => (
               <div
-                key={service.id}
+                key={activity.id}
                 className="destination"
-                onClick={() => handleServiceClick(service.name)}
+                onClick={() => handleActivityClick(activity.name)}
               >
-                <div className="dest_img">
-                  <img src={service.image_url} alt={service.name} />
-                </div>
                 <div className="dest_info">
-                <h1>{service.name}</h1>
-                <p>{service.location}</p></div>
+                  <h1>{activity.name}</h1>
+                  <p><strong>Description:</strong> {activity.description}</p>
+                  <p><strong>Duration:</strong> {activity.duration} hours</p>
+                </div>
               </div>
             ))}
           </div>
@@ -54,4 +53,4 @@ const DestinationPage = () => {
   );
 };
 
-export default DestinationPage;
+export default ActivityPage;

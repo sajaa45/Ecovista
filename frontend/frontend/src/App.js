@@ -1,6 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
+import ActivityPage from './pages/activities/ActivityPage';
 import DestinationItem from './pages/destinations/DestinationItem';
 import DestinationPage from './pages/destinations/DestinationPage';
 import HomePage from './pages/home/HomePage';
@@ -21,6 +22,7 @@ function App() {
           <Route path="/home" element={<HomePage/>}/>
           <Route path="/destinations" element={<DestinationPage />} />
           <Route path="/destinations/:name" element={<DestinationItem />} />
+          <Route path="/activity" element={<ActivityPage />} />
           <Route path="/contact" element={<h1 style={{ "fontFamily": "Source Serif Pro", "color":"#175919"}}>Our Contact:</h1>}/>
           {/* Add other routes here */}
           <Route path="*" element={<NotFound />} />
