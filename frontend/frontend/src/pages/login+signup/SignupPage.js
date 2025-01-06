@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../styles/App.css'; // Add this line to import your CSS file
+import '../../styles/App.css'; // Add this line to import your CSS file
 import FacebookIcon from './facebook.png'; // Import the Facebook image
 import GoogleIcon from './google.png';
 

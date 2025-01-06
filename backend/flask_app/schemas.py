@@ -1,20 +1,25 @@
 from marshmallow import Schema, fields
-class BookingSchema(Schema):
-    id = fields.Int(dump_only=True) 
-    username = fields.Str(dump_only=True)
-    destination_id = fields.Int(dump_only=True)
-    destination= fields.Str(required=True)
-    from_date = fields.Date(required=True)
-    to_date = fields.Date(required=False)
-    status = fields.Str(required=True)
 
 class DestinationSchema(Schema):
     id = fields.Int(dump_only=True) 
     name = fields.Str(required=True)
     description = fields.Str()
-    location = fields.Str()
+    location = fields.Str(required=True)
     activities = fields.Str()
     image_url = fields.Str()
+    activities = fields.List(fields.Nested('ActivitySchema', dump_only=True))
+class ActivitySchema(Schema):
+
+    id = fields.Integer(dump_only=True)
+    name = fields.String(required=True)
+    description = fields.String()
+    duration = fields.Integer(required=True)
+    max_participants = fields.Integer(required=True)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)
+
+    # Define the many-to-many relationship with Destination
+    destinations = fields.List(fields.String())
 
 class ReviewSchema(Schema):
     id = fields.Int(dump_only=True) 

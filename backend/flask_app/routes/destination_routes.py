@@ -9,31 +9,35 @@ from schemas import DestinationSchema  # Assuming a schema for the DestinationMo
 
 bp = Blueprint('Destinations', 'destinations', description="Operations on destinations")
 
-@bp.route('/destinations/<int:id>')
+@bp.route('/destinations/<string:name>')
 class DestinationItem(MethodView):
     @bp.response(200, DestinationSchema)
-    def get(self, id):
-        destination = DestinationModel.query.get_or_404(id)
+    def get(self, name):
+        # Fetch the destination by name instead of id
+        destination = DestinationModel.query.filter_by(name=name).first_or_404()
         return destination
 
-    def delete(self, id):
-        destination = DestinationModel.query.get_or_404(id)
+    def delete(self, name):
+        # Fetch the destination by name instead of id
+        destination = DestinationModel.query.filter_by(name=name).first_or_404()
         db.session.delete(destination)
         db.session.commit()
-        return {"message": "DestinationModel deleted successfully."}
+        return {"message": "Destination deleted successfully."}
 
     @bp.arguments(DestinationSchema)
     @bp.response(200, DestinationSchema)
-    def put(self, destination_data, id):
-        destination = DestinationModel.query.get(id)
+    def put(self, destination_data, name):
+        # Fetch the destination by name instead of id
+        destination = DestinationModel.query.filter_by(name=name).first()
+        
         if destination:
             destination.name = destination_data["name"]
             destination.description = destination_data["description"]
             destination.location = destination_data["location"]
-            destination.activities = destination_data["activities"]
             destination.image_url = destination_data["image_url"]
         else:
-            destination = DestinationModel(id=id, **destination_data)
+            destination = DestinationModel(name=name, **destination_data)
+        
         db.session.add(destination)
         db.session.commit()
         return destination
@@ -46,18 +50,23 @@ class DestinationList(MethodView):
         # Get query parameters
         name = request.args.get('name')
         location = request.args.get('location')
-        keywords = request.args.get('keywords')
 
         query = DestinationModel.query
         if name:
             query = query.filter(DestinationModel.name.ilike(f"%{name}%"))
         if location:
             query = query.filter(DestinationModel.location.ilike(f"%{location}%"))
-        if keywords:
-            query = query.filter(DestinationModel.description.ilike(f"%{keywords}%"))
 
         destinations = query.all()
-        return destinations
+
+        # Serialize destinations with only the fields you want (name, location, image_url)
+        result = [{
+            'name': destination.name,
+            'location': destination.location,
+            'image_url': destination.image_url
+        } for destination in destinations]
+
+        return result
 
     @bp.arguments(DestinationSchema)
     @bp.response(201, DestinationSchema)

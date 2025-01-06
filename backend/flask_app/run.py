@@ -1,14 +1,19 @@
-from app import create_app
 from extensions import db
+from models.activity import ActivityModel
+from models.destination import DestinationModel
 
-app = create_app()
+# Create test data
+activity = ActivityModel(name="Hiking", duration=3, max_participants=10)
+destination = DestinationModel(name="Mountain Peak", description="Beautiful mountain")
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        print("Database tables created successfully.")
+# Establish the relationship
+activity.destinations.append(destination)
 
-    if app.config['DEBUG']:
-        app.run(debug=True)
-    else:
-        app.run()
+# Persist to the database
+db.session.add(activity)
+db.session.add(destination)
+db.session.commit()
+
+# Query and verify
+print(activity.destinations)  # Should list the added destination(s)
+print(destination.activities)  
