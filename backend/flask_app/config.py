@@ -9,3 +9,4 @@ class Config:
     OPENAPI_VERSION= "3.0.3"
     OPENAPI_URL_PREFIX = "/"
     SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
+    JWT_TOKEN_LOCATION= 'cookies'

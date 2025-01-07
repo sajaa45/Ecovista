@@ -9,24 +9,30 @@ from schemas import TravelGroupSchema, GroupMemberSchema  # Import the appropria
 
 bp = Blueprint('TravelGroups', 'travelgroups', description="Operations on travel groups")
 
-@bp.route('/travel-group/<int:group_id>')
+@bp.route('/travel-group/<string:group_name>')
 class TravelGroupItem(MethodView):
+    # Get a single travel group by group_name
     @bp.response(200, TravelGroupSchema)
-    def get(self, group_id):
-        travel_group = TravelGroupModel.query.get_or_404(group_id)
+    def get(self, group_name):
+        travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first_or_404()
         return travel_group
 
-    def delete(self, group_id):
-        travel_group = TravelGroupModel.query.get_or_404(group_id)
+    # Delete a travel group by group_name
+    def delete(self, group_name):
+        travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first_or_404()
         db.session.delete(travel_group)
         db.session.commit()
         return {"message": "Travel group deleted successfully."}
 
+    # Update or create a travel group
     @bp.arguments(TravelGroupSchema)
     @bp.response(200, TravelGroupSchema)
-    def put(self, travel_group_data, group_id):
-        travel_group = TravelGroupModel.query.get(group_id)
+    def put(self, travel_group_data, group_name):
+        # Attempt to fetch the existing group
+        travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first()
+
         if travel_group:
+            # Update existing travel group with new data
             travel_group.group_name = travel_group_data["group_name"]
             travel_group.destination = travel_group_data["destination"]
             travel_group.start_date = travel_group_data["start_date"]
@@ -34,11 +40,12 @@ class TravelGroupItem(MethodView):
             travel_group.description = travel_group_data["description"]
             travel_group.contact_info = travel_group_data["contact_info"]
         else:
-            travel_group = TravelGroupModel(id=group_id, **travel_group_data)
-        db.session.add(travel_group)
+            # If the group doesn't exist, create a new one
+            travel_group = TravelGroupModel(group_name=group_name, **travel_group_data)
+            db.session.add(travel_group)
+
         db.session.commit()
         return travel_group
-
 
 @bp.route('/travel-group')
 class TravelGroupList(MethodView):
@@ -66,8 +73,14 @@ class TravelGroupList(MethodView):
 
         # Fetch and return results
         groups = query.all()
-        return groups
-
+        # Fetch and return results
+        group = [{
+            "group_name" : group.group_name ,
+            "destination" : group.destination,
+            "start_date" : group.start_date, 
+            "end_date" : group.end_date 
+        } for group in groups]
+        return group
 
     @bp.arguments(TravelGroupSchema)
     @bp.response(201, TravelGroupSchema)

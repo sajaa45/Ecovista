@@ -10,6 +10,7 @@ from config import Config  # Import the Config class
 from extensions import db
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
@@ -18,6 +19,7 @@ def create_app():
     print(app.config['SQLALCHEMY_DATABASE_URI'])  # Optional: Print the database URI for debugging
     db.init_app(app)
     migrate = Migrate(app, db)
+    jwt = JWTManager(app)
     api = Api(app)
     with app.app_context():
         db.create_all()  # Create database tables

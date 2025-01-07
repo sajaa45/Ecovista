@@ -482,6 +482,13 @@ html, body {
   text-align: left;
   font-size: 35px;
   font-weight: bold;}
+  .dest_info h2{
+    /* Add some space between title and location */
+   text-align: left;
+   font-size: 30px;
+   margin-top:-10px;
+   padding-left:30px;
+ }
 .dest_info p{
    /* Add some space between title and location */
   text-align: left;
@@ -547,6 +554,19 @@ html, body {
   object-fit: cover;
   border: 3px solid #4caf50;
 }
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure the page takes the full height of the viewport */
+}
+.App{display: flex;
+flex-direction: column;
+min-height: 100vh;
+}
+
+.content-wrap {
+flex: 1; /* Pushes footer to the bottom */
+}
 .destination-details{
   display: flex;
   flex-direction: row-reverse;
@@ -566,4 +586,19 @@ html, body {
   margin-bottom: 40px;
   margin-left:30px;
   font-family:Source Serif Pro;
+}
+.search-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+.search-input {
+  width: 300px;
+  height: 20px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1.5px solid #175919;
+  border-radius: 5px;
+  margin-top:30px;
 }

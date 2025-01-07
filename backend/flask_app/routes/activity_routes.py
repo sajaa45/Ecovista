@@ -12,8 +12,7 @@ bp = Blueprint('Activities', 'activity', description="Operations on activities")
 class ActivityItem(MethodView):
     @bp.response(200, ActivitySchema)
     def get(self, name):
-        # Fetch the activity by ID
-        activity = ActivityModel.query.get_or_404(name)
+        activity = ActivityModel.query.filter_by(name=name).first_or_404()
         return activity
 
     def delete(self, name):
