@@ -1,38 +1,45 @@
+import Cookies from 'js-cookie';
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 import FacebookIcon from './facebook.png';
 import GoogleIcon from './google.png';
 
-function LoginPage() {
+function LoginPage({onSubmit}) {
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');  
     const navigate = useNavigate(); 
     
+    
     const handleLogin = async (e) => {
         e.preventDefault();
         
         const userData = {
-          identifier: identifier,
-          password: password
+            identifier: identifier,
+            password: password
         };
-
+    
         try {
-          const response = await fetch('http://127.0.0.1:5000/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-          });
-
+            const response = await fetch('http://127.0.0.1:5000/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+    
             if (response.ok) {
                 const data = await response.json();
-                // Handle successful login (e.g., store token, redirect, etc.)
+                // Assuming the token is returned in data.token
+                Cookies.set('jwt', data.token, { expires: 7 }); // Store the token in cookies for 7 days
+                Cookies.set('username', data.username)
                 console.log(data["message"]);
+                console.log('Token:', data.token);
+                onSubmit();
                 setError('');  // Clear error on success
-                navigate('/home');
+                navigate(`/hom`); // Redirect to home page
+                
             } else {
                 const errorData = await response.json();
                 // Display error message if login fails

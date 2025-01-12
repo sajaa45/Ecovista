@@ -41,6 +41,7 @@ class ReviewList(MethodView):
         # Create the review and set the username and destination_id
         review = ReviewModel(
             username=username, 
+            image_url=user.image_url,
             destination_id=destination_id, 
             **review_data
         )

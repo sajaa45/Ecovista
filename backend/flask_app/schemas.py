@@ -24,6 +24,7 @@ class ActivitySchema(Schema):
 class ReviewSchema(Schema):
     id = fields.Int(dump_only=True) 
     username = fields.Str(dump_only=True)
+    image_url = fields.Str(dump_only=True)
     destination_id = fields.Int(dump_only=True)
     destination= fields.Str(required=True)
     rating = fields.Int(required=True)

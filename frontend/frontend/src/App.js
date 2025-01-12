@@ -3,6 +3,8 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ActivityItem from './pages/activities/ActivityItem';
 import ActivityPage from './pages/activities/ActivityPage';
+import { RefreshProvider } from './pages/auth/RefreshContext'; // Import the RefreshProvider
+import ProtectedRoute from './pages/auth/UserProvider';
 import DestinationItem from './pages/destinations/DestinationItem';
 import DestinationPage from './pages/destinations/DestinationPage';
 import GroupItem from './pages/groups/GroupItem';
@@ -10,33 +12,62 @@ import GroupPage from './pages/groups/GroupPage';
 import HomePage from './pages/home/HomePage';
 import LoginPage from './pages/login+signup/LoginPage';
 import SignupPage from './pages/login+signup/SignupPage';
-import NotFound from './pages/NOtFoundPage';
+import NOtFoundPage from './pages/NOtFoundPage';
+import UserItem from './pages/profile/UserItem';
+import ReviewPage from './pages/reviews/ReviewPage';
 import './styles/App.css';
+
+
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <div class="content-wrap">
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/sign-up" element={<SignupPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/destinations" element={<DestinationPage />} />
-            <Route path="/destinations/:name" element={<DestinationItem />} />
-            <Route path="/activity" element={<ActivityPage />} />
-            <Route path="/activity/:name" element={<ActivityItem />} />
-            <Route path="/travel-group" element={<GroupPage />} />
-            <Route path="/travel-group/:group_name" element={<GroupItem />} />
-            <Route path="/contact" element={<h1 style={{ "fontFamily": "Source Serif Pro", "color": "#175919" }}>Our Contact:</h1>} />
-            
-            {/* Add other routes here */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+    <RefreshProvider>
+      <Router>
+        <div className="App">
+          <div className="content-wrap">
+            <Navbar />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/sign-up" element={<SignupPage />} />
+
+              {/* Protected Routes */}
+              <Route
+                path="/home"
+                element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+              <Route
+                path="/destinations"
+                element={<ProtectedRoute><DestinationPage /></ProtectedRoute>} />
+              <Route
+                path="/destinations/:name"
+                element={<ProtectedRoute><DestinationItem /></ProtectedRoute>} />
+              <Route
+                path="/activity"
+                element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
+              <Route
+                path="/activity/:name"
+                element={<ProtectedRoute><ActivityItem /></ProtectedRoute>} />
+              <Route
+                path="/travel-group"
+                element={<ProtectedRoute><GroupPage /></ProtectedRoute>} />
+              <Route
+                path="/travel-group/:group_name"
+                element={<ProtectedRoute><GroupItem /></ProtectedRoute>} />
+              <Route
+                path="/users/:username"
+                element={<ProtectedRoute><UserItem /></ProtectedRoute>} />
+              <Route
+                path="/reviews"
+                element={<ProtectedRoute><ReviewPage /></ProtectedRoute>} />
+              <Route
+                path="/contact"
+                element={<ProtectedRoute><h1 style={{ fontFamily: 'Source Serif Pro', color: '#175919' }}>Our Contact:</h1></ProtectedRoute>} />
+              <Route path="*" element={<NOtFoundPage />} />
+            </Routes>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    </Router>
+      </Router>
+    </RefreshProvider>
   );
 };
 

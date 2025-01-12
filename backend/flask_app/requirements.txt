@@ -10,3 +10,4 @@ flask_jwt_extended
 flask-cors
 pyjwt
 flask_jwt_extended
+cryptography

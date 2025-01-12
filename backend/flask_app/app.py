@@ -14,7 +14,7 @@ from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
     app.config.from_object(Config)  # Load configuration from Config class
     print(app.config['SQLALCHEMY_DATABASE_URI'])  # Optional: Print the database URI for debugging
     db.init_app(app)
@@ -30,3 +30,6 @@ def create_app():
     api.register_blueprint(travelgroups_Blueprint)
     api.register_blueprint(auth_Blueprint)
     return app
+
+if __name__ =="__main__":
+    create_app()
