@@ -1,11 +1,15 @@
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 
-const ReviewPage = () => {
+const ReviewPage = ({  image_url }) => {
+  const { username } = useParams();
+  console.log("username",username, "image_url", image_url); 
   const [reviews, setReviews] = useState([]); // State to store fetched reviews
   const [searchQuery, setSearchQuery] = useState(''); // State for search input
   const [loading, setLoading] = useState(true); 
+  const navigate = useNavigate();
   const [newReview, setNewReview] = useState({
     destination: '',
     rating: '',
@@ -14,21 +18,42 @@ const ReviewPage = () => {
   const [showForm, setShowForm] = useState(false); // State to toggle form visibility
   const [errorMessage, setErrorMessage] = useState(''); // State for error messages
   const [successMessage, setSuccessMessage] = useState(''); // State for success messages
-
-  // Fetch data when the component mounts
+  
+  // Fetch reviews when the component mounts
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/review') // Adjust API endpoint for reviews
-      .then((response) => response.json())
-      .then((data) => {
-        setReviews(data); // Set the fetched reviews to state
-        setLoading(false); // Stop loading after data is fetched
-      })
-      .catch((error) => {
-        console.error('Error fetching reviews:', error);
-        setLoading(false); // Stop loading in case of error
-      });
-  }, []); // Empty dependency array to only run once when the component mounts
+    const fetchReviews = async () => {
+      const token = Cookies.get('jwt');
+      console.log("aaa",token);
+      if (!token) {
+        navigate('/login'); // Redirect if no token
+        return;
+      }
+      
 
+      try {
+        const response = await fetch('http://127.0.0.1:5000/review', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Authorization with token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews');
+        }
+
+        const data = await response.json();
+        setReviews(data); // Set reviews in state
+        setLoading(false);
+        
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchReviews(); // Call the function to fetch reviews
+  }, [navigate]);
   // Filter reviews based on search query
   const filteredReviews = reviews.filter((review) =>
     review.destination.toLowerCase().includes(searchQuery.toLowerCase())

@@ -2,9 +2,12 @@ import Cookies from 'js-cookie';
 import { default as React, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
+import { useRefresh } from '../auth/RefreshContext';
 import { UserContext } from '../auth/UserProvider';
+import ReviewPage from '../reviews/ReviewPage';
 
-const UserItem = ( {refresh, onLogout}) => {
+const UserItem = ( ) => {
+    const   {toggleRefresh}  = useRefresh();
     const { logout } = useContext(UserContext);
     const { username } = useParams();
     const [user, setUser] = useState(null);
@@ -23,7 +26,6 @@ const UserItem = ( {refresh, onLogout}) => {
 
 
             try {
-                console.log("Fetching user:", username);
                 const response = await fetch(`http://127.0.0.1:5000/users/${username}`, {
                     method: 'GET',
                     headers : {
@@ -57,9 +59,7 @@ const UserItem = ( {refresh, onLogout}) => {
       return <p>No user found</p>;}
 
     const isAdminOrCurrentUser = user.username?.toLowerCase() === username?.toLowerCase() || user.role === 'admin';
-    const handleServiceClick = () => {
-        navigate(`/login`);
-      };
+    
     return (
         <div className="Destinationpage">
             <section className="destination-item">
@@ -95,20 +95,22 @@ const UserItem = ( {refresh, onLogout}) => {
                     </div>
                     
                 </div>
-                <div className='logout' onClick={() => handleServiceClick()}>
-                    <button
-                    className="cta-button"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        logout();
-                        onLogout();
-                        navigate('/login');
-                    }}
-                >
-                        Logout
-                    </button>
-                        </div>
+                <div className='logout'>
+    <button
+        className="cta-button"
+        onClick={(e) => {
+            e.preventDefault();
+            logout(); // Directly call logout
+            navigate('/login'); // Redirect to login page
+            toggleRefresh();
+        }}
+    >
+        Logout
+    </button>
+</div>
+
             </section>
+            <ReviewPage username={user.username} image_url={user.image_url} />
         </div>
     );
 };

@@ -1,15 +1,16 @@
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/App.css';
+import { useRefresh } from '../pages/auth/RefreshContext'; // Use the hook here
 
-const Navbar = ({refresh}) => {
-  const [username, setUsername] = useState(Cookies.get("username"));
+const Navbar = () => {
+  const [username, setUsername] = useState(Cookies.get('username')); // Get the username from cookies on initial load
+  const { refresh } = useRefresh(); // Consume the refresh state
 
   useEffect(() => {
-    // Update the username when `refresh` changes
-    setUsername(Cookies.get("username"));
-  }, [refresh]); // Dependency array includes refresh
+    // Set the username again if it changes (e.g., after logout)
+    setUsername(Cookies.get('username'));
+  }, [refresh]); // Run this effect when the 'refresh' state changes
   return (
     <nav className="navbar">
       <div className="navbar-logo">

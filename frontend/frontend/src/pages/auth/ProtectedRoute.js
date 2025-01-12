@@ -1,13 +1,21 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { RefreshContext } from './RefreshContext'; // Import RefreshContext
 import { UserContext } from './UserProvider';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useContext(UserContext);
+  const { setRefresh } = useContext(RefreshContext); // Consume setRefresh from context
+  const location = useLocation(); // Get the current location
+
+  useEffect(() => {
+    // Trigger the refresh state whenever the route changes
+    setRefresh((prev) => !prev);
+  }, [location]); // This will trigger refresh when location changes
 
   // Show a loading spinner or message while checking authentication
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // You can replace this with a spinner
   }
 
   // Redirect to login if the user is not authenticated

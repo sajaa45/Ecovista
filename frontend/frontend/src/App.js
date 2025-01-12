@@ -1,10 +1,11 @@
+import { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ActivityItem from './pages/activities/ActivityItem';
 import ActivityPage from './pages/activities/ActivityPage';
 import { RefreshProvider } from './pages/auth/RefreshContext'; // Import the RefreshProvider
-import ProtectedRoute from './pages/auth/UserProvider';
+import ProtectedRoute, { UserContext } from './pages/auth/UserProvider';
 import DestinationItem from './pages/destinations/DestinationItem';
 import DestinationPage from './pages/destinations/DestinationPage';
 import GroupItem from './pages/groups/GroupItem';
@@ -17,10 +18,11 @@ import UserItem from './pages/profile/UserItem';
 import ReviewPage from './pages/reviews/ReviewPage';
 import './styles/App.css';
 
-
 function App() {
+  const { logout } = useContext(UserContext);
+  
   return (
-    <RefreshProvider>
+    <RefreshProvider >
       <Router>
         <div className="App">
           <div className="content-wrap">
@@ -54,7 +56,7 @@ function App() {
                 element={<ProtectedRoute><GroupItem /></ProtectedRoute>} />
               <Route
                 path="/users/:username"
-                element={<ProtectedRoute><UserItem /></ProtectedRoute>} />
+                element={<ProtectedRoute><UserItem onLogout={logout} component={ReviewPage}/></ProtectedRoute>} />
               <Route
                 path="/reviews"
                 element={<ProtectedRoute><ReviewPage /></ProtectedRoute>} />
