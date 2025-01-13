@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode'; // Corrected import for jwt-decode
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddReview } from '../reviews/AddReview'; // Adjust the import path as necessary
 
@@ -9,18 +9,13 @@ const DestinationItem = () => {
   const { name } = useParams(); // Get the destination name from the URL
   const [destination, setDestination] = useState(null); // State to store fetched destination details
   const [loading, setLoading] = useState(true); // Loading state
+  const [username, setUsername] = useState(null);
   const [role, setRole] = useState(null);
+  const [image, setImage] = useState(null);
   const [isOpen, setIsOpen] = useState(false); // State to manage modal visibility
-  const navigate = useNavigate(); // Use navigate for redirection
 
   const fetchDestinationDetails = async (name) => {
-    const token = Cookies.get('jwt');
-
     try {
-      const decodedToken = jwtDecode(token);
-      setRole(decodedToken.role); // Assuming the role is stored in the 'role' key
-      console.log("User  Role:", decodedToken.role); // Log the role after setting it
-
       const response = await fetch(`http://127.0.0.1:5000/destinations/${name}`);
       if (!response.ok) {
         throw new Error('Failed to fetch destination details');
@@ -30,21 +25,28 @@ const DestinationItem = () => {
       setDestination(data);
     } catch (error) {
       console.error('Error fetching destination details:', error);
-      navigate('/error'); // Redirect to an error page or handle the error appropriately
     } finally {
       setLoading(false);
     }
   };
 
-   // In DestinationItem component
-   useEffect(() => {
+  useEffect(() => {
     const token = Cookies.get('jwt');
     if (token) {
-      const decodedToken = jwtDecode(token);
-      setRole(decodedToken.role); // Assuming the role is stored in the 'role' key
+      try {
+        const decodedToken = jwtDecode(token);
+        setRole(decodedToken.role);
+        setUsername(decodedToken.username);
+        setImage(decodedToken.img);
+        if (!image) {
+          setImage("https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg")}
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+      }
     }
+
     fetchDestinationDetails(name);
-  }, [name]);
+  }, [name]); // Added navigate to dependencies
 
   if (loading) {
     return <p>Loading...</p>; // Show loading message while fetching
@@ -53,7 +55,6 @@ const DestinationItem = () => {
   if (!destination) {
     return <p>No destination found</p>; // Handle the case when destination is not found
   }
-
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -79,6 +80,10 @@ const DestinationItem = () => {
                 title="Add Your Review"
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
+                name={destination.name.toUpperCase()}
+                id={destination.id}
+                username={username}
+                img={image}
               />
             </>
           ) : (

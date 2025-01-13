@@ -1,66 +1,72 @@
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
 
-export function AddReview({ children, buttonText = "Open Modal", title = "Modal", isOpen, setIsOpen }) {
+export function AddReview({ children, buttonText = "Open Modal", title = "Modal", isOpen, setIsOpen, name, id, username, img }) {
   const [showForm, setShowForm] = useState(true); // State to toggle form visibility
   const [errorMessage, setErrorMessage] = useState(''); // State for error messages
   const [successMessage, setSuccessMessage] = useState(''); 
   const [newReview, setNewReview] = useState({
-    destination: '',
     rating: '',
     comment: '',
   }); 
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewReview({ ...newReview, [name]: value });
   };
 
-  // In AddReview component
-const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // Clear previous error message
+    setSuccessMessage(''); // Clear previous success message
   
-    // Validate input fields
-    if (!newReview.destination || !newReview.rating || !newReview.comment) {
-      setErrorMessage('All fields are required.');
-      return;
-    }
+    try {
+      // Validate input fields
+      if (!newReview.rating || !newReview.comment) {
+        throw new Error('All fields are required.');
+      }
   
-    const token = Cookies.get('jwt'); // Get the JWT token from cookies
+      const token = Cookies.get('jwt'); // Get the JWT token from cookies
+      console.log('JWT Token:', token);
+      if (!token) {
+        throw new Error('Missing JWT token. Please log in.');
+      }
   
-    // Send the POST request to add a new review
-    fetch('http://127.0.0.1:5000/review', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, // Include the JWT token
-      },
-      body: JSON.stringify({
-        ...newReview,
-        image_url: 'user_image_url_here', // Replace with actual image URL from user context
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then(err => {
-            throw new Error(err.message || 'Failed to add review.');
-          });
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setSuccessMessage('Review added successfully!');
-        setNewReview({ destination: '', rating: '', comment: '' }); // Reset the form
-        setShowForm(true); // Hide the form
-        setIsOpen(false); // Close the modal
-      })
-      .catch((error) => {
-        console.error('Error adding review:', error);
-        setErrorMessage(error.message || 'Error adding review. Please try again.');
+      const response = await fetch('http://127.0.0.1:5000/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+        },
+        body: JSON.stringify({
+          destination: name,
+          rating: newReview.rating,
+          comment: newReview.comment,
+          username: username, // Include username
+          image_url: img, // Include image
+          destination_id: id // Include destination ID if needed
+        })
       });
+  
+      if (!response.ok) {
+        const errData = await response.json();
+        console.error('Error response:', errData);
+        throw new Error(errData.msg || 'Failed to add review.');
+      }
+  
+      const data = await response.json();
+      console.log('Response Data:', data);
+      setSuccessMessage('Review added successfully!');
+      setNewReview({ rating: '', comment: '' }); // Reset the form
+      setShowForm(false); // Hide the form
+      setIsOpen(false); // Close the modal
+    } catch (error) {
+      console.error('Error adding review:', error);
+      setErrorMessage(error.message || 'Error adding review. Please try again.');
+    }
   };
   
- 
+  
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="cta-button">
@@ -73,14 +79,14 @@ const handleFormSubmit = (e) => {
           {showForm && (
             <form className="add-review-form" onSubmit={handleFormSubmit}>
               <h2>Add Your Review</h2>
-              <input
-                type="text"
-                name="destination"
-                placeholder="Your destination"
-                value={newReview.destination}
-                onChange={handleInputChange}
-                className="input-field"
-              />
+              <label style={{  alignSelf: "flex-start", textAlign: "left" ,paddingLeft: "70px" }}>Destination:</label>
+              <div className="input-field">
+                <label>{name}</label> {/* Display the destination name */}
+              </div>
+              <label style={{  alignSelf: "flex-start", textAlign: "left" ,paddingLeft: "70px" }}>Destination id:</label>
+              <div className="input-field">
+                <label>{id}</label> {/* Display the ID */}
+              </div>
               <input
                 type="number"
                 name="rating"
@@ -106,7 +112,7 @@ const handleFormSubmit = (e) => {
           </div>
           <button onClick={() => setIsOpen(false)} className="cta-button">Close</button>
         </div>
-            )}
-          </>
-        );
-      }
+      )}
+    </>
+  );
+}

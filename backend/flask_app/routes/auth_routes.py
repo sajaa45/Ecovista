@@ -19,9 +19,10 @@ def is_strong_password(password):
             any(c.isdigit() for c in password) and 
             any(c in "!@#$%^&*()_+" for c in password))
 
-def generate_token(user_id, role,username):
+def generate_token(user_id, role,username,image_url):
     expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
-    token = jwt.encode({'user_id': user_id, 'role': role, 'username':username, 'exp': expiration_time}, config.Config.SECRET_KEY, algorithm='HS256')
+    token = jwt.encode({'user_id': user_id, 'role': role, 'username':username, 'exp': expiration_time, 'img':image_url}, config.Config.SECRET_KEY, algorithm='HS256')
+     
     return token
 
 def get_jwt_from_cookie():
@@ -30,6 +31,7 @@ def get_jwt_from_cookie():
 def decode_jwt(token):
     try:
         payload = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
+        print(payload)
         return payload
     except jwt.ExpiredSignatureError:
         return None  # Token has expired
@@ -67,7 +69,7 @@ class SignUp(MethodView):
         db.session.commit()
 
         # Generate the JWT token
-        token = generate_token(user.id, role, user.username)
+        token = generate_token(user.id, role, user.username, user.image_url)
 
         response = make_response(jsonify({"message": "User  created successfully. Please log in."}), 201)
         response.set_cookie('jwt', token, httponly=True, secure=False, samesite='Lax')  # Set secure=True in production
@@ -103,10 +105,10 @@ class Login(MethodView):
             return {"error": "Incorrect password, try again"}, 401
 
         # Generate token
-        token = generate_token(user.id, user.role, user.username)
+        token = generate_token(user.id, user.role, user.username, user.image_url)
 
         # Create a response object
-        response = make_response(jsonify({"message": "Login successful", "token": token, "username": user.username}), 200)
+        response = make_response(jsonify({"message": "Login successful", "token": token, "username": user.username, "img":user.image_url}), 200)
         
         # Set the JWT token as a cookie
         response.set_cookie('jwt', token, httponly=True, secure=False)  # Set secure=True in production
@@ -119,6 +121,6 @@ class Logout(MethodView):
         """Logout a user"""
         # Clear the JWT cookie
         response = make_response(jsonify({"message": "Logout successful"}), 200)
-        response.set_cookie('token', '', expires=0)  # Clear the cookie
+        response.set_cookie('jwt', '', expires=0)  # Clear the cookie
 
         return response

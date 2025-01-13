@@ -645,10 +645,12 @@ flex: 1; /* Pushes footer to the bottom */
   padding: 15px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
-
+.review-info{
+  padding-left:100px;
+}
 .review-info h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 30px;
   color: #003366;
 }
 
@@ -669,7 +671,34 @@ flex: 1; /* Pushes footer to the bottom */
   margin-top: 20px;
 }
 
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-left:50px;
+}
+.clickable-destination {
+  color: #007BFF; /* Blue text */
+  cursor: pointer;
+  text-decoration: underline;
+}
+.clickable-destination:hover {
+  color: #0056b3; /* Darker blue on hover */
+}
 
+.user-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 3px solid #4caf50;
+}
+
+.username {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
 .input-field {
   width: 90%;
   max-width: 400px;
