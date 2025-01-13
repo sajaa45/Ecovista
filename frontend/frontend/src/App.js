@@ -1,11 +1,12 @@
 import { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import ProtectedRoute from './/pages/auth/ProtectedRoute';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ActivityItem from './pages/activities/ActivityItem';
 import ActivityPage from './pages/activities/ActivityPage';
 import { RefreshProvider } from './pages/auth/RefreshContext'; // Import the RefreshProvider
-import ProtectedRoute, { UserContext } from './pages/auth/UserProvider';
+import { UserContext, UserProvider } from './pages/auth/UserProvider';
 import DestinationItem from './pages/destinations/DestinationItem';
 import DestinationPage from './pages/destinations/DestinationPage';
 import GroupItem from './pages/groups/GroupItem';
@@ -22,6 +23,7 @@ function App() {
   const { logout } = useContext(UserContext);
   
   return (
+    <UserProvider>
     <RefreshProvider >
       <Router>
         <div className="App">
@@ -69,7 +71,7 @@ function App() {
           <Footer />
         </div>
       </Router>
-    </RefreshProvider>
+    </RefreshProvider></UserProvider>
   );
 };
 

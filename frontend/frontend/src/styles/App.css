@@ -587,6 +587,10 @@ flex: 1; /* Pushes footer to the bottom */
   margin-left:30px;
   font-family:Source Serif Pro;
 }
+.add_review .cta-button{
+  font-size:15px;
+  font-weight: normal;
+}
 .search-container {
   display: flex;
   flex-direction: row-reverse;

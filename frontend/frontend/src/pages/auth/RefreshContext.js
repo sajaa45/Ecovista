@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const RefreshContext = createContext();
+export const RefreshContext = createContext();
 
 export const useRefresh = () => {
   return useContext(RefreshContext); // Custom hook to access context
