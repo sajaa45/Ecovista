@@ -87,12 +87,19 @@ const ActivityItem = () => {
             <p><strong>Duration:</strong> {activity.duration} hours</p>
             <p><strong>Maximum Participants:</strong> {activity.max_participants}</p>
             <p><strong>Updated at:</strong> {new Date(activity.updated_at).toLocaleString()}</p>
-            
+            <div className='add_review'>
             {canUpdate && (
+              <>
               <a href="#services-section">
                 <button className="cta-button">Update</button>
               </a>
-            )}
+              <button
+              type="button"
+              className="cta-button"
+            >
+              Delete Location
+            </button></>
+            )}</div>
           </div>
         </div>
       </section>

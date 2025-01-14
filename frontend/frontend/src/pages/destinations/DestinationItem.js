@@ -12,6 +12,7 @@ const DestinationItem = () => {
   const [username, setUsername] = useState(null);
   const [role, setRole] = useState(null);
   const [image, setImage] = useState(null);
+  const [userId, setUserId] = useState(null); // Store user ID from JWT
   const [isOpen, setIsOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -38,7 +39,8 @@ const DestinationItem = () => {
         const decodedToken = jwtDecode(token);
         setRole(decodedToken.role);
         setUsername(decodedToken.username);
-        setImage(decodedToken.img || "https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg");
+        setImage(decodedToken.img || 'https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg');
+        setUserId(decodedToken.user_id); // Extract and store user ID
       } catch (error) {
         console.error('Failed to decode token:', error);
       }
@@ -58,7 +60,6 @@ const DestinationItem = () => {
   const handleServiceClick = (activity) => {
     navigate(`/activities/${activity}`); // Navigate using the specific activity
   };
-
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -89,7 +90,17 @@ const DestinationItem = () => {
               </p>
             )}
             <div className='add_review'>
-              {role !== "admin" ? (
+              {(role === "admin" || userId === destination.creator_id) ? (
+                <><a href="#services-section">
+                  <button className="cta-button">Update</button>
+                </a>
+                <button
+                type="button"
+                className="cta-button"
+              >
+                Delete Location
+              </button></>
+              ) : (
                 <AddReview
                   buttonText="Add Your Review"
                   title="Add Your Review"
@@ -100,10 +111,6 @@ const DestinationItem = () => {
                   username={username}
                   img={image}
                 />
-              ) : (
-                <a href="#services-section">
-                  <button className="cta-button">Update</button>
-                </a>
               )}
             </div>
           </div>

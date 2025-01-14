@@ -176,19 +176,22 @@ const GroupItem = () => {
               </a>
             </p>
             <div className='member'>
+            <div className='add_review'>
             {canDeleteGroup ? (
+              <>
+              <button className="cta-button">Update</button>
               <button
                 className="cta-button delete-button"
                 onClick={handleDeleteGroup}
               >
                 Delete Group
-              </button>
+              </button></>
             ) : (
               <button className="cta-button" onClick={handleJoinLeave}>
                 {isMember ? 'Leave Group' : 'Join Group'}
               </button>
             )}</div>
-          </div>
+          </div></div>
         </div>
       </section>
     </div>

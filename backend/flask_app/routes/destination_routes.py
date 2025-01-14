@@ -28,7 +28,8 @@ class DestinationItem(MethodView):
             'name': destination.name,
             'location': destination.location,
             'image_url': destination.image_url,
-            'activities': activity_names  # Include the list of activities related to the destination
+            'activities': activity_names , # Include the list of activities related to the destination
+            'creator_id': destination.creator_id
         }
 
         return result
@@ -91,7 +92,7 @@ class DestinationList(MethodView):
     @bp.response(201, DestinationSchema)
     def post(self, destination_data):
         token = request.headers.get('Authorization')
-    
+
         # Determine how to handle user authentication
         if token:
             try:
@@ -102,22 +103,22 @@ class DestinationList(MethodView):
         else:
             # No token provided (for testing or Postman)
             current_user = get_current_user()  # Fallback to default or testing user
-    
+
         if not current_user:
             abort(401, message="Unauthorized access")  # If no valid user, return unauthorized access
-    
+
         # Debug print for user info (can be removed later)
         print(f"Current user ID: {current_user.id}")
-    
+
         # Check for duplicate destination by name
         existing_destination = DestinationModel.query.filter_by(name=destination_data['name']).first()
         if existing_destination:
             abort(400, message="A destination with this name already exists.")  # Return error if duplicate name
-    
+
         # Create the destination object with provided data
         destination = DestinationModel(**destination_data)
         destination.creator_id = current_user.id  # Assign the creator ID
-    
+
         try:
             # Commit the new destination to the database
             db.session.add(destination)
@@ -126,6 +127,5 @@ class DestinationList(MethodView):
             db.session.rollback()  # Rollback on error
             print(f"Error: {str(e)}")  # Print the exception details for debugging
             abort(500, message="An error occurred while creating the destination.")
-        
+
         return destination  # Return the created destination
-    
