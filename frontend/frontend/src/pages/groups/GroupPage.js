@@ -1,40 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
+import { AddGroup } from './AddGroup';
 
 const GroupPage = () => {
-  const [groups, setGroups] = useState([]); // State to store fetched destinations
-  const [searchQuery, setSearchQuery] = useState(''); // State for search input
-  const [loading, setLoading] = useState(true); // Loading state
+  const [groups, setGroups] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch data when the component mounts
   useEffect(() => {
-    const fetchDestinations = async () => {
+    const fetchGroups = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/travel-group');
         if (!response.ok) {
-          throw new Error('Failed to fetch destinations');
+          throw new Error('Failed to fetch travel groups');
         }
         const data = await response.json();
-        setGroups(data); // Set the data to state
+        setGroups(data);
       } catch (error) {
-        console.error('Error fetching destinations:', error);
+        console.error('Error fetching groups:', error);
       } finally {
-        setLoading(false); // Stop loading regardless of success or error
+        setLoading(false);
       }
     };
 
-    fetchDestinations();
-  }, []); // Empty dependency array ensures this runs once when the component mounts
+    fetchGroups();
+  }, []);
 
   const handleServiceClick = (route) => {
     navigate(`/travel-groups/${route}`);
   };
 
-  // Filter destinations based on search query
-  const filteredDestinations = groups.filter((destination) =>
-    destination.group_name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredGroups = groups.filter((group) =>
+    group.group_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -43,36 +43,51 @@ const GroupPage = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search for a destination..."
+            placeholder="Search for a travel group..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
           />
           <h1>Available Travel Groups</h1>
         </div>
+
+        {!isAdding && (
+          <button className="cta-button" onClick={() => setIsAdding(true)}>
+            Add Travel Group
+          </button>
+        )}
+
+        {isAdding && <AddGroup setIsAdding={setIsAdding} />}
+
         {loading ? (
           <div className="spinner-container">
-          <div className="loading-spinner"></div>
-        </div>
-        ) : filteredDestinations.length > 0 ? (
+            <div className="loading-spinner"></div>
+          </div>
+        ) : filteredGroups.length > 0 ? (
           <div className="destinations-list">
-            {filteredDestinations.map((service) => (
+            {filteredGroups.map((group) => (
               <div
-                key={service.id}
+                key={group.id}
                 className="destination"
-                onClick={() => handleServiceClick(service.group_name)}
+                onClick={() => handleServiceClick(group.group_name)}
               >
                 <div className="dest_info">
-                  <h1>{service.group_name.toUpperCase()}</h1>
-                  <h2>{service.destination}</h2>
-                  <p><strong>From: </strong>{service.start_date}</p>
-                  <p><strong>To: </strong>{service.end_date}</p>
+                  <h1>{group.group_name.toUpperCase()}</h1>
+                  <h2>{group.destination}</h2>
+                  <p>
+                    <strong>From: </strong>
+                    {group.start_date}
+                  </p>
+                  <p>
+                    <strong>To: </strong>
+                    {group.end_date}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p>No destinations found.</p>
+          <p>No travel groups found.</p>
         )}
       </section>
     </div>

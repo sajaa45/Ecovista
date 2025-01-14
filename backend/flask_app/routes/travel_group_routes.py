@@ -102,12 +102,28 @@ class TravelGroupList(MethodView):
     @bp.arguments(TravelGroupSchema)
     @bp.response(201, TravelGroupSchema)
     def post(self, travel_group_data):
+        token = request.headers.get('Authorization')
+    
+        # Determine how to handle user authentication
+        if token:
+            try:
+                token = token.split()[1]  # Extract the token
+                current_user = get_current_user_front(token)  # Front-end-specific token handling
+            except (IndexError, Exception) as e:
+                abort(401, message="Invalid or expired token")  # Handle token parsing or expiry issues
+        else:
+            # No token provided (for testing or Postman)
+            current_user = get_current_user()  # Fallback to default or testing user
+    
+        if not current_user:
+            abort(401, message="Unauthorized access")  # If no valid user, return unauthorized access
+    
         # Create the TravelGroup instance from the data
         travel_group = TravelGroupModel(**travel_group_data)
-        user = get_current_user()  # Assuming get_current_user fetches the current authenticated user
         
+        travel_group.creator_id = current_user.id
         # Add the current user as a member to the group
-        travel_group.add_member(user.username)
+        travel_group.add_member(current_user.username)
         try:
             db.session.add(travel_group)  # Add the group to the session
             db.session.commit()  # Commit to the database

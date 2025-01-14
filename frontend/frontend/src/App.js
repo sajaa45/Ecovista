@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import ProtectedRoute from './/pages/auth/ProtectedRoute';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ActivityItem from './pages/activities/ActivityItem';
 import ActivityPage from './pages/activities/ActivityPage';
+import ProtectedRoute from './pages/auth/ProtectedRoute';
 import { RefreshProvider } from './pages/auth/RefreshContext'; // Import the RefreshProvider
 import { UserContext, UserProvider } from './pages/auth/UserProvider';
 import DestinationItem from './pages/destinations/DestinationItem';

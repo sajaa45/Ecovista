@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
+import { AddDestination } from './AddDestination'; // Assuming AddDestination is a child component
 
 const DestinationPage = () => {
   const [destinations, setDestinations] = useState([]); // State to store fetched destinations
   const [searchQuery, setSearchQuery] = useState(''); // State for search input
   const [loading, setLoading] = useState(true); // Loading state
+  const [isAdding, setIsAdding] = useState(false); // State to track if the Add Destination form is visible
   const navigate = useNavigate();
 
   // Fetch data when the component mounts
@@ -27,6 +29,16 @@ const DestinationPage = () => {
 
     fetchDestinations();
   }, []); // Empty dependency array ensures this runs once when the component mounts
+  const handleDestinationAdded = () => {
+    // Fetch the latest destinations after adding a new one
+    const fetchDestinations = async () => {
+      const response = await fetch('http://127.0.0.1:5000/destinations');
+      const data = await response.json();
+      setDestinations(data);
+    };
+
+    fetchDestinations();
+  };
 
   const handleServiceClick = (route) => {
     navigate(`/destinations/${route}`);
@@ -50,6 +62,17 @@ const DestinationPage = () => {
           />
           <h1>Destinations To Visit</h1>
         </div>
+
+        {/* Show the button to add a destination */}
+        {!isAdding && (
+          <button className="cta-button" onClick={() => setIsAdding(true)}>
+            Add Destination
+          </button>
+        )}
+
+        {/* If the "Add Destination" button is clicked, show the form */}
+        {isAdding && <AddDestination setIsAdding={setIsAdding} onDestinationAdded={handleDestinationAdded}/>}
+
         {loading ? (
           <div className="spinner-container">
             <div className="loading-spinner"></div>
@@ -80,4 +103,5 @@ const DestinationPage = () => {
   );
 };
 
-export default DestinationPage;
+
+export default DestinationPage; 
