@@ -127,10 +127,8 @@ def join_leave_group(group_name, action):
     group = TravelGroupModel.query.filter_by(group_name=group_name).first()
     if not group:
         abort(404, message="Group not found")
-    decoded_token = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
-    print(decoded_token.username)
-    user = get_current_user_front(token)  # Fetch the current user
-    print("aaa",user)
+
+    user = get_current_user_front(token)  
     if not isinstance(group.members, list):
         group.members = []  # Initialize it as a list if it isn't
 

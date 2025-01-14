@@ -13,10 +13,9 @@ def get_current_user_front(token):
     
     if not token:
         print("Token is missing.")
-    print("bb")
+
     try:
         decoded_token = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
-        print(decoded_token.username)  # Log the decoded token
         user_id = decoded_token.get('user_id')
         if not user_id:
             print("User ID is missing in token.")
@@ -66,22 +65,37 @@ class UserList(MethodView):
 class UserDetail(MethodView):
     @bp.response(200, UserSchema)
     def get(self, username):
-        """Get a single user by username"""
+        token = request.headers.get('Authorization')
+
+        if token:
+            # Token provided (e.g., from the front-end)
+            try:
+                token = token.split()[1]
+                current_user = get_current_user_front(token)  # Front-end-specific token handling
+            except Exception as e:
+                abort(401, message="Invalid or expired token")
+        else:
+            # No token provided (e.g., for Postman testing)
+            current_user = get_current_user()  # Default or testing user
+
+        if not current_user:
+            abort(401, message="Unauthorized access")
+
+        print(f"Current user: {current_user.username}")
+
+        # Get the requested user by username
         user = UserModel.query.filter_by(username=username).first_or_404()
         print(f"User found: {user.username}")
-        # Get the current logged-in user from the JWT token
-        # get_current_user()  # This will return the user object
-        if not username:
-            abort(401, message="Username missing")
 
-        # Check if the current user is an admin or the user themselves
-        #if current_user.username != username and current_user.role != "admin":
-            # Non-admin users only see specific fields
-        
-            # Admins or the user themselves can see all data
-        user_data = UserSchema().dump(user)
-        print(f"Current user: {user_data}") 
-        return user_data
+        # If the current user is not an admin or the requested user, restrict fields
+        if current_user.username != username and current_user.role != "admin":
+            return UserSchema(exclude=("password", "id", "role")).dump(user), 200
+
+        # Admins or the user themselves can view all fields
+        return UserSchema().dump(user), 200
+
+
+
 
     def delete(self, username):
         """Delete a user by username"""

@@ -125,7 +125,9 @@ const GroupItem = () => {
   }
   const canDeleteGroup =
     group.creator_id === currentUser.user_id || currentUser.role === 'admin';
-
+  const handleServiceClick = (route) => {
+    navigate(`/users/${route}`);
+  };
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -147,7 +149,17 @@ const GroupItem = () => {
             </p>
             {group.members && group.members.length > 0 ? (
               <p>
-                <strong>Members:</strong> {group.members.join(', ')}
+                <strong>Members:</strong>{' '}
+                {group.members.map((member, index) => (
+                  <span
+                    key={index}
+                    onClick={() => handleServiceClick(member)}
+                    className="member-name"
+                  >
+                    {member}
+                    {index < group.members.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
               </p>
             ) : (
               <p>

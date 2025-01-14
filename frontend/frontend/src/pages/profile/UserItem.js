@@ -60,7 +60,7 @@ const UserItem = () => {
         return <p>No user found</p>;
     }
 
-    const isAdminOrCurrentUser  = user.username?.toLowerCase() === username?.toLowerCase() || user.role === 'admin';
+    const isAdminOrCurrentUser = user.username?.toLowerCase() === username?.toLowerCase() || user.role === 'admin';
 
     const handleUpdateSuccess = (updatedUser ) => {
         setUser (updatedUser ); // Update the user state with the new data
@@ -95,21 +95,20 @@ const UserItem = () => {
                         <div className="destt_info">
                         {successMessage && <p className="success-message" style={{ color: 'green' }}>{successMessage}</p>} {/* Display success message */}
                             <h1><strong>{user.first_name.toUpperCase()} {user.last_name.toUpperCase()}</strong></h1>
-                            <p><strong>Created at:</strong> {new Date(user.created_at).toLocaleString()}</p>
                             <p><strong>Username:</strong> {user.username}</p>
-                            <p><strong>Email:</strong> {user.email || 'N/A'}</p>
-                            {isAdminOrCurrentUser  && (
+                            <p><strong>Email:</strong> <a href={`mailto:${user.email}`} target="_blank" rel="noopener noreferrer">{user.email || 'N/A'}</a></p>
+                            {isAdminOrCurrentUser && user?.id && user?.role && (
                                 <>
                                     <p><strong>ID:</strong> {user.id}</p>
                                     <p><strong>Role:</strong> {user.role}</p>
-                                </>
-                            )}
+                                
+                                                    
                             
-                            <button className="cta-button" onClick={() => setIsUpdating(true)}>Update</button>
+                            <button className="cta-button" onClick={() => setIsUpdating(true)}>Update</button></>)}
                         </div>
                     </div>
                 )}
-
+                {isAdminOrCurrentUser && user?.id && user?.role &&(
                 <div className='logout'>
                     <button
                         className="cta-button"
@@ -122,7 +121,7 @@ const UserItem = () => {
                     >
                         Logout
                     </button>
-                </div>
+                </div>)}
             </section>
         </div>
     );

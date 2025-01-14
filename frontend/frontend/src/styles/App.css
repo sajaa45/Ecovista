@@ -550,6 +550,16 @@ html, body {
   gap: 10px; /* Add spacing between buttons */
   margin-right: 2px;
 }
+.member-name {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.member-name:hover {
+  color: #0056b3;
+}
+
 .destt_info .member .cta-button {
   padding: 10px 15px; /* Adjust button padding */
   font-size: 13x; /* Adjust button font size */
