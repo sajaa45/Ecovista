@@ -7,7 +7,8 @@ class DestinationSchema(Schema):
     location = fields.Str(required=True)
     activities = fields.Str()
     image_url = fields.Str()
-    activities = fields.List(fields.Pluck('ActivitySchema', 'name'))
+    creator_id = fields.Int(dump_only=True,load_only=True)
+    activities = fields.List(fields.Str(), dump_only=True)
 class ActivitySchema(Schema):
 
     id = fields.Integer(dump_only=True)
@@ -17,6 +18,7 @@ class ActivitySchema(Schema):
     max_participants = fields.Integer(required=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+    creator_id = fields.Int(dump_only=True,load_only=True)
 
     # Define the many-to-many relationship with Destination
     destinations = fields.List(fields.Str(), required=True) 
@@ -39,7 +41,7 @@ class TravelGroupSchema(Schema):
     end_date = fields.Date(required=True)
     description = fields.Str()
     contact_info = fields.Str(required=True)
-    creator_id = fields.Int(required=True)
+    creator_id = fields.Int(dump_only=True)
     created_at = fields.DateTime(dump_only=True) 
     members = fields.List(fields.Str(), dump_only=True)
 

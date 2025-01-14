@@ -46,7 +46,8 @@ const ReviewPage = () => {
   const filteredReviews = reviews.filter((review) =>
     review.destination.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+  const handleServiceClick = (route) => {
+    navigate(`/users/${route}`);}
   return (
     <div className="Destinationpage">
       <section id="review-section" className="reviews">
@@ -75,8 +76,11 @@ const ReviewPage = () => {
                     src={review.image_url || 'default_image_url_here'}
                     alt={review.username}
                     className="user-image"
-                  />
-                  <p className="username">{review.username}</p>
+                  /><span
+                  onClick={() => handleServiceClick(review.username)}
+                  className="member-name"
+                >
+                  <p className="username">{review.username}</p></span>
                 </div>
                 <div className="review-info">
                   <h1>

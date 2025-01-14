@@ -1,18 +1,20 @@
 import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode'; // Corrected import for jwt-decode
+import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
-import { AddReview } from '../reviews/AddReview'; // Adjust the import path as necessary
+import { AddReview } from '../reviews/AddReview';
 
 const DestinationItem = () => {
-  const { name } = useParams(); // Get the destination name from the URL
-  const [destination, setDestination] = useState(null); // State to store fetched destination details
-  const [loading, setLoading] = useState(true); // Loading state
+  const { name } = useParams();
+  const [destination, setDestination] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState(null);
   const [role, setRole] = useState(null);
   const [image, setImage] = useState(null);
-  const [isOpen, setIsOpen] = useState(false); // State to manage modal visibility
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchDestinationDetails = async (name) => {
     try {
@@ -20,7 +22,6 @@ const DestinationItem = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch destination details');
       }
-
       const data = await response.json();
       setDestination(data);
     } catch (error) {
@@ -37,24 +38,27 @@ const DestinationItem = () => {
         const decodedToken = jwtDecode(token);
         setRole(decodedToken.role);
         setUsername(decodedToken.username);
-        setImage(decodedToken.img);
-        if (!image) {
-          setImage("https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg")}
+        setImage(decodedToken.img || "https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg");
       } catch (error) {
         console.error('Failed to decode token:', error);
       }
     }
-
     fetchDestinationDetails(name);
-  }, [name]); // Added navigate to dependencies
+  }, [name]);
 
   if (loading) {
-    return <p>Loading...</p>; // Show loading message while fetching
+    return <p>Loading...</p>;
   }
 
   if (!destination) {
-    return <p>No destination found</p>; // Handle the case when destination is not found
+    return <p>No destination found</p>;
   }
+
+  // Handle click for activities, dynamically using the clicked activity
+  const handleServiceClick = (activity) => {
+    navigate(`/activities/${activity}`); // Navigate using the specific activity
+  };
+
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -70,28 +74,38 @@ const DestinationItem = () => {
             )}
             <p><strong>Destination ID:</strong> {destination.id}</p>
             {destination.activities && destination.activities.length > 0 && (
-              <p><strong>Activities:</strong> {destination.activities.join(', ')}</p>
+              <p><strong>Activities:</strong>
+                {destination.activities.map((activity, index) => (
+                  <span 
+                    key={index} 
+                    onClick={() => handleServiceClick(activity)} 
+                    className="member-name"
+                    style={{ cursor: 'pointer', color: 'blue' }}
+                  >
+                    {activity}
+                    {index < destination.activities.length - 1 && ', '}
+                  </span>
+                ))}
+              </p>
             )}
-        <div className='add_review'>
-          {role !== "admin" ? (
-            <>
-              <AddReview
-                buttonText="Add Your Review"
-                title="Add Your Review"
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                name={destination.name.toUpperCase()}
-                id={destination.id}
-                username={username}
-                img={image}
-              />
-            </>
-          ) : (
-            <a href="#services-section">
-              <button className="cta-button">Update</button>
-            </a>
-          )}
-        </div>
+            <div className='add_review'>
+              {role !== "admin" ? (
+                <AddReview
+                  buttonText="Add Your Review"
+                  title="Add Your Review"
+                  isOpen={isOpen}
+                  setIsOpen={setIsOpen}
+                  name={destination.name.toUpperCase()}
+                  id={destination.id}
+                  username={username}
+                  img={image}
+                />
+              ) : (
+                <a href="#services-section">
+                  <button className="cta-button">Update</button>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </section>
