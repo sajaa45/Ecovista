@@ -5,6 +5,7 @@ from flask_smorest import Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import UserModel
 from schemas import UserSchema
+
 from extensions import db
 import jwt
 import datetime

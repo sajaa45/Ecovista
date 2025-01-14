@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields,post_dump
 
 class DestinationSchema(Schema):
     id = fields.Int(dump_only=True) 
@@ -41,14 +41,8 @@ class TravelGroupSchema(Schema):
     contact_info = fields.Str(required=True)
     creator_id = fields.Int(required=True)
     created_at = fields.DateTime(dump_only=True) 
-    members = fields.List(fields.Nested('GroupMemberSchema', dump_only=True))
+    members = fields.List(fields.Str(), dump_only=True)
 
-
-class GroupMemberSchema(Schema):
-    id = fields.Int(dump_only=True) 
-    group_id = fields.Int(required=True)
-    user_id = fields.Int(required=True)
-    travel_group = fields.Nested('TravelGroupSchema', dump_only=True)
 
 class UserSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -59,3 +53,5 @@ class UserSchema(Schema):
     password = fields.Str(required=True)  
     role = fields.Str(dump_only=True)
     image_url = fields.Str()
+    new_password = fields.Str(load_only=True)
+

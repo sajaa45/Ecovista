@@ -37,7 +37,7 @@ function App() {
               {/* Protected Routes */}
               <Route
                 path="/home"
-                element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+                element={<HomePage />} />
               <Route
                 path="/destinations"
                 element={<ProtectedRoute><DestinationPage /></ProtectedRoute>} />
@@ -45,16 +45,16 @@ function App() {
                 path="/destinations/:name"
                 element={<ProtectedRoute><DestinationItem /></ProtectedRoute>} />
               <Route
-                path="/activity"
+                path="/activities"
                 element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
               <Route
-                path="/activity/:name"
+                path="/activities/:name"
                 element={<ProtectedRoute><ActivityItem /></ProtectedRoute>} />
               <Route
-                path="/travel-group"
+                path="/travel-groups"
                 element={<ProtectedRoute><GroupPage /></ProtectedRoute>} />
               <Route
-                path="/travel-group/:group_name"
+                path="/travel-groups/:group_name"
                 element={<ProtectedRoute><GroupItem /></ProtectedRoute>} />
               <Route
                 path="/users/:username"

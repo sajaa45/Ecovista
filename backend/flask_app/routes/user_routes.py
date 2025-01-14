@@ -4,12 +4,33 @@ from flask_smorest import Blueprint, abort
 from extensions import db
 from models.user import UserModel
 from schemas import UserSchema
+from .auth_routes import is_strong_password
 import jwt
 import config
 
 bp = Blueprint('users', __name__, url_prefix='/users')
+def get_current_user_front(token):
+    
+    if not token:
+        print("Token is missing.")
+    print("bb")
+    try:
+        decoded_token = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
+        print(decoded_token.username)  # Log the decoded token
+        user_id = decoded_token.get('user_id')
+        if not user_id:
+            print("User ID is missing in token.")
+        user = UserModel.query.get(user_id)  # Fetch user from the database
+        if not user:
+            print("User not found.")
+        return user  # Return the user object
+    except jwt.ExpiredSignatureError:
+        print("Token has expired.")
+    except jwt.InvalidTokenError:
+        print("Token is invalid.")
 
-def get_current_user(token):
+def get_current_user():
+    
     token = request.cookies.get('jwt') 
     if not token:
         abort(401, message="Token is missing.")
@@ -33,7 +54,6 @@ class UserList(MethodView):
     def get(self):
         """Get all users"""
         current_user = get_current_user() 
-        # Ensure the user is an admin before showing all users
         if current_user.role != "admin":
             # Non-admin users only see specific fields
             users = UserModel.query.all()
@@ -77,39 +97,71 @@ class UserDetail(MethodView):
         db.session.commit()
         return {"message": "User  deleted successfully."}
 
-    @bp.arguments(UserSchema)
+    
+    @bp.arguments(UserSchema)  # Only validate fields defined in UserSchema
     @bp.response(200, UserSchema)
     def put(self, user_data, username):
+        token = request.headers.get('Authorization')
+        token = token.split()[1]
         """Update an existing user by username"""
-        # Fetch the user by the provided username
+        # Fetch the user from the database
         user = UserModel.query.filter_by(username=username).first()
 
         if not user:
             abort(404, message="User  not found")
-        
+
+        # Handle password verification
+        password = user_data.get("password")  # This is now the current password
+
         # Verify the current password provided by the user
-        if user.password != user_data.get('current_password'):
+        if password and user.password != password:
             abort(400, message="Current password is incorrect")
 
-        # Check if the new username already exists in the database
-        if 'username' in user_data and UserModel.query.filter_by(username=user_data['username']).first():
-            abort(400, message="Username already exists")
-
+        # Update the username if provided and it's available
         if 'username' in user_data:
+            # Check if the new username already exists
+            if UserModel.query.filter_by(username=user_data['username']).first() and user_data['username'] != user.username:
+                abort(400, message="Username already exists")
             user.username = user_data['username']
-        
-        user.first_name = user_data['first_name']
-        user.last_name = user_data['last_name']
-        user.email = user_data['email']
-        user.image_url = user_data['image_url']  # Corrected to match the attribute name
-        db.session.commit()
-        
-        return UserSchema().dump(user)  # Return the updated user data
 
-#@bp.route('/me')
-#class CurrentUser (MethodView):
-#    def get(self):
-#        """Get the current user's information"""
-#        user = get_current_user()  # Get the current user based on the token
-#        user_data = UserSchema().dump(user)  # Serialize the user data using UserSchema
-#        return jsonify(user_data)  # Return the user data as JSON
+        # Update the password if a new one is provided
+        new_password = user_data.get("new_password")
+        if new_password:
+            # Validate the new password strength
+            if not is_strong_password(new_password):
+                abort(400, message="New password is not strong enough.")
+            user.password = new_password
+
+        # Update other fields
+        updated_fields = False
+
+        if 'first_name' in user_data:
+            user.first_name = user_data['first_name']
+            updated_fields = True
+
+        if 'last_name' in user_data:
+            user.last_name = user_data['last_name']
+            updated_fields = True
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+            updated_fields = True
+
+        if 'image_url' in user_data:
+            user.image_url = user_data['image_url']
+            updated_fields = True
+
+        # Commit the changes to the database if any fields were updated
+        if updated_fields or new_password:
+            db.session.commit()
+
+            # Return the updated user data, excluding the current password
+            user_data = UserSchema(exclude=["password"]).dump(user)  # Exclude password from response
+
+            # If new password was set, add it to the response
+            if new_password:
+                user_data["password"] = new_password  # Include the new password if provided
+
+            return jsonify(user_data)
+        else:
+            abort(400, message="No fields were provided for update.")

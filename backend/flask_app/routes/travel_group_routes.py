@@ -3,10 +3,12 @@ from flask import request, jsonify
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from extensions import db
-from models.travel_group import TravelGroupModel, GroupMemberModel
+from models.travel_group import TravelGroupModel
 from marshmallow import ValidationError
-from schemas import TravelGroupSchema, GroupMemberSchema  # Import the appropriate schemas for serialization
-
+from schemas import TravelGroupSchema  # Import the appropriate schemas for serialization
+from routes.user_routes import get_current_user, get_current_user_front
+import jwt
+import config
 bp = Blueprint('TravelGroups', 'travelgroups', description="Operations on travel groups")
 
 @bp.route('/travel-group/<string:group_name>')
@@ -17,12 +19,27 @@ class TravelGroupItem(MethodView):
         travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first_or_404()
         return travel_group
 
-    # Delete a travel group by group_name
+   
     def delete(self, group_name):
+        # Fetch the travel group or raise a 404 error if not found
         travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first_or_404()
-        db.session.delete(travel_group)
-        db.session.commit()
-        return {"message": "Travel group deleted successfully."}
+
+        # Get the current user (assumes a function `get_current_user` exists)
+        user = get_current_user()
+
+        # Check if the user is authorized to delete the group
+        if travel_group.owner_id != user.id:  # Assuming `owner_id` represents the creator of the group
+            abort(403, message="You don't have permission to delete this travel group.")
+
+        try:
+            db.session.delete(travel_group)
+            db.session.commit()
+            return {"message": "Travel group deleted successfully."}, 200  # Explicit 200 status code
+        except Exception as e:
+            db.session.rollback()  # Rollback the transaction on error
+            return {"message": f"An error occurred: {str(e)}"}, 500  # Return a 500 Internal Server Error
+
+
 
     # Update or create a travel group
     @bp.arguments(TravelGroupSchema)
@@ -85,46 +102,83 @@ class TravelGroupList(MethodView):
     @bp.arguments(TravelGroupSchema)
     @bp.response(201, TravelGroupSchema)
     def post(self, travel_group_data):
+        # Create the TravelGroup instance from the data
         travel_group = TravelGroupModel(**travel_group_data)
-        try:
-            db.session.add(travel_group)
-            db.session.commit()
-        except SQLAlchemyError:
-            abort(500, message="An error occurred while creating the travel group.")
-        return travel_group
-
-
-@bp.route('/travel-group/<int:group_id>/join')
-class JoinTravelGroup(MethodView):
-    @bp.arguments(GroupMemberSchema)
-    def post(self, group_member_data, group_id):
-        user_id = group_member_data.get('user_id')
-        if not user_id:
-            abort(400, message="User  ID is required.")
+        user = get_current_user()  # Assuming get_current_user fetches the current authenticated user
         
-        group_member = GroupMemberModel(group_id=group_id, user_id=user_id)
+        # Add the current user as a member to the group
+        travel_group.add_member(user.username)
         try:
-            db.session.add(group_member)
-            db.session.commit()
-            return jsonify({"message": "You have successfully joined the group", "group_member": group_member}), 201
+            db.session.add(travel_group)  # Add the group to the session
+            db.session.commit()  # Commit to the database
         except SQLAlchemyError as e:
-            # Log the error (e) here for debugging
-            abort(500, message="An error occurred while trying to join the group.")
+            db.session.rollback()  # Rollback the session in case of error
+            print(f"Error details: {e}")
+            abort(500, message="An error occurred while creating the travel group.")
+        
+        return travel_group 
 
 
-@bp.route('/travel-group/<int:group_id>/members')
-class TravelGroupMembers(MethodView):
-    @bp.response(200, GroupMemberSchema(many=True))
-    def get(self, group_id):
-        members = GroupMemberModel.query.filter_by(group_id=group_id).all()
-        return members
+
+@bp.route('/travel-group/<string:group_name>/<string:action>', methods=['PATCH'])
+def join_leave_group(group_name, action):
+    token = request.headers.get('Authorization')
+    token = token.split()[1]
+    group = TravelGroupModel.query.filter_by(group_name=group_name).first()
+    if not group:
+        abort(404, message="Group not found")
+    decoded_token = jwt.decode(token, config.Config.SECRET_KEY, algorithms=['HS256'])
+    print(decoded_token.username)
+    user = get_current_user_front(token)  # Fetch the current user
+    print("aaa",user)
+    if not isinstance(group.members, list):
+        group.members = []  # Initialize it as a list if it isn't
+
+    # Log members before modifying (for debugging)
+    print(f"Current members before action: {group.members}")
+    print(f"Group type: {type(group)}")
+
+    if action == 'join':
+        if user.username not in group.members:
+            group.add_member(user.username) 
+            try:
+                db.session.commit()
+            except Exception as e:
+                print(f"Error committing to the database: {e}")
+                db.session.rollback()  # Rollback the session in case of error
+        else:
+            abort(400, message="You are already a member of the group.")
+    
+    elif action == 'leave':
+        
+        if user.username in group.members:
+            group.remove_member(user.username)  # Remove the user from the members list
+            db.session.commit() 
+        else:
+            abort(400, message="You are not a member of the group.")
+    
+    # Serialize the group data using the schema
+    group_schema = TravelGroupSchema()
+    result = group_schema.dump(group)
+    
+    return jsonify(result)  # Return the serialized result as JSON
 
 
-@bp.route('/travel-group/<int:group_id>/leave')
-class LeaveTravelGroup(MethodView):
-    @bp.arguments(GroupMemberSchema)
-    def post(self, group_member_data, group_id):
-        group_member = GroupMemberModel.query.filter_by(group_id=group_id, user_id=group_member_data['user_id']).first_or_404()
-        db.session.delete(group_member)
-        db.session.commit()
-        return {"message": "You have successfully left the group."}
+
+
+#@bp.route('/travel-group/<int:group_id>/members')
+#class TravelGroupMembers(MethodView):
+#    @bp.response(200, GroupMemberSchema(many=True))
+#    def get(self, group_id):
+#        members = GroupMemberModel.query.filter_by(group_id=group_id).all()
+#        return members
+#
+#
+#@bp.route('/travel-group/<int:group_id>/leave')
+#class LeaveTravelGroup(MethodView):
+#    @bp.arguments(GroupMemberSchema)
+#    def post(self, group_member_data, group_id):
+#        group_member = GroupMemberModel.query.filter_by(group_id=group_id, user_id=group_member_data['user_id']).first_or_404()
+#        db.session.delete(group_member)
+#        db.session.commit()
+#        return {"message": "You have successfully left the group."}

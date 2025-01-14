@@ -29,7 +29,7 @@ const GroupPage = () => {
   }, []); // Empty dependency array ensures this runs once when the component mounts
 
   const handleServiceClick = (route) => {
-    navigate(`/travel-group/${route}`);
+    navigate(`/travel-groups/${route}`);
   };
 
   // Filter destinations based on search query

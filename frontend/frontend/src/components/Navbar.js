@@ -19,8 +19,8 @@ const Navbar = () => {
       <ul className="navbar-menu">
         <li><Link to="/home">Home</Link></li>
         <li><Link to="/destinations">Destinations</Link></li>
-        <li><Link to="/activity">Activities</Link></li>
-        <li><Link to="/travel-group">Travel Groups</Link></li>
+        <li><Link to="/activities">Activities</Link></li>
+        <li><Link to="/travel-groups">Travel Groups</Link></li>
         <li><Link to="/reviews">Reviews</Link></li>
         {username ? ( // If user is authenticated
           <>

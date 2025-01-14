@@ -503,13 +503,62 @@ html, body {
   text-align: left;
   font-size: 40px;
   font-weight: bold;}
-.destt_info p{
+  
+
+.destinationn .destt_info form {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
+.destinationn .destt_info label {
+    display: flex;
+    align-items: center;
+    font-size: 16px; /* Adjust label text size */
+    gap: 5px; /* Add spacing between label text and input */
+    text-align: left;
+    font-size: 20px;
+    margin-top:-10px;
+    padding-left:30px;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+}
+
+.destinationn .destt_info .detaailss label input {
+  margin-left: 10px; /* Add spacing between label and input */
+  flex: 1; /* Make the input take remaining space if needed */
+  padding: 8px 12px; /* Add padding inside the input for better spacing */
+  border: 2px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 16px; /* Slightly larger text */
+  width: 100%; /* Ensure the input takes up full width of the container */
+  box-sizing: border-box; 
+}
+.destt_info p, .destt_info label{
     /* Add some space between title and location */
   text-align: left;
   font-size: 20px;
   margin-top:-10px;
   padding-left:30px;
   padding-bottom: 5px;
+}
+.destinationn .destt_info .button-group {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  align-items: flex-end;
+  gap: 10px; /* Add spacing between buttons */
+  margin-right: 2px;
+}
+.destt_info .member .cta-button {
+  padding: 10px 15px; /* Adjust button padding */
+  font-size: 13x; /* Adjust button font size */
+  cursor: pointer;
+}
+.destt_info .button-group .cta-button {
+  padding: 10px 15px; /* Adjust button padding */
+  font-size: 16x; /* Adjust button font size */
+  cursor: pointer;
 }
 .destination-list {
   display: flex;
@@ -520,6 +569,19 @@ html, body {
 .destination{
   width: 90%;
   height: 300px;
+  background: #ddd;
+  border-radius: 25px;
+  border: 3px solid #4caf50;
+  display: flex;
+  flex-direction: row; 
+  padding: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 10px;
+  margin-bottom:20px;
+  margin-left:60px;
+}
+.destinationn {
+  height: 450px;
   background: #ddd;
   border-radius: 25px;
   border: 3px solid #4caf50;

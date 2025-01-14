@@ -23,7 +23,7 @@ const ActivityPage = () => {
   }, []); // Empty dependency array to only run once when the component mounts
 
   const handleActivityClick = (route) => {
-    navigate(`/activity/${route}`);
+    navigate(`/activities/${route}`);
   };
 
   // Filter activities based on search query

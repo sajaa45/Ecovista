@@ -7,7 +7,7 @@ from models.user import UserModel
 from extensions import db
 from schemas import ReviewSchema
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from routes.user_routes import get_current_user
+
 from flask import request
 
 
@@ -26,7 +26,6 @@ class ReviewList(MethodView, ):
     def post(self, review_data):
         token = request.headers.get('Authorization')
         token = token.split()[1]
-        print (token)
         review = ReviewModel(
         destination=review_data['destination'],
         rating=review_data['rating'],
