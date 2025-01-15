@@ -3,16 +3,20 @@ import { jwtDecode } from 'jwt-decode'; // To decode the JWT token
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
+import UpdateActivity from './UpdateActivity'; // Import the UpdateActivity component
 
 const ActivityItem = () => {
-  const { name } = useParams(); // Get the destination name from the URL
+  const { name } = useParams(); // Get the activity name from the URL
   const [activity, setActivity] = useState(null); // State to store fetched activity details
   const [loading, setLoading] = useState(true); // Loading state
   const [currentUserId, setCurrentUserId] = useState(null); // Current user's ID
   const [userRole, setUserRole] = useState(null); // Current user's role
-  
+  const [updateMode, setUpdateMode] = useState(false); // Control update mode
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   const navigate = useNavigate();
-  
+
   // Fetch activity data when the component mounts
   useEffect(() => {
     const token = Cookies.get('jwt');
@@ -30,17 +34,26 @@ const ActivityItem = () => {
     fetchActivityDetails(name);
   }, [name]);
 
-  const fetchActivityDetails = (name) => {
-    fetch(`http://127.0.0.1:5000/activity/${name}`)
-      .then(response => response.json())
-      .then(data => {
-        setActivity(data); // Set the activity data
-        setLoading(false); 
-      })
-      .catch(error => {
-        console.error('Error fetching activity details:', error);
-        setLoading(false); // In case of error, stop loading
-      });
+  const fetchActivityDetails = async (name) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/activity/${name}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch activity details');
+      }
+      const data = await response.json();
+      setActivity(data);
+    } catch (error) {
+      console.error('Error fetching activity details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateSuccess = (updatedActivity) => {
+    setActivity(updatedActivity);
+    setUpdateMode(false); // Close update mode
+    setSuccessMessage('Activity updated successfully!');
+    setErrorMessage('');
   };
 
   if (loading) {
@@ -63,43 +76,64 @@ const ActivityItem = () => {
       <section name="destination-item-section" className="destination-item">
         <div className="activity-details">
           <div className="destt_info">
-            <h1><strong>{activity.name.toUpperCase()}</strong></h1>
-            <p><strong>Created at:</strong> {new Date(activity.created_at).toLocaleString()}</p>
-            {activity.description && (
-              <p><strong>Description:</strong> {activity.description}</p>
-            )}
-            <p><strong>Activity ID:</strong> {activity.id}</p>
-            {activity.destinations && activity.destinations.length > 0 ? (
-              <p><strong>Destinations:</strong> {activity.destinations.map((destination, index) => (
-                <span 
-                  key={index} 
-                  onClick={() => handleServiceClick(destination)} 
-                  className="member-name"
-                  style={{ cursor: 'pointer', color: 'blue' }}
-                >
-                  {destination}
-                  {index < activity.destinations.length - 1 && ', '}
-                </span>
-              ))}</p>
+            {updateMode ? (
+              <UpdateActivity
+                activity={activity}
+                onUpdateSuccess={handleUpdateSuccess} // Pass success callback
+                onCancel={() => setUpdateMode(false)} // Cancel callback
+              />
             ) : (
-              <p><strong>Destinations:</strong> None</p>
-            )}
-            <p><strong>Duration:</strong> {activity.duration} hours</p>
-            <p><strong>Maximum Participants:</strong> {activity.max_participants}</p>
-            <p><strong>Updated at:</strong> {new Date(activity.updated_at).toLocaleString()}</p>
-            <div className='add_review'>
-            {canUpdate && (
               <>
-              <a href="#services-section">
-                <button className="cta-button">Update</button>
-              </a>
-              <button
-              type="button"
-              className="cta-button"
-            >
-              Delete Location
-            </button></>
-            )}</div>
+                <h1><strong>{activity.name.toUpperCase()}</strong></h1>
+                <p><strong>Created at:</strong> {new Date(activity.created_at).toLocaleString()}</p>
+                {activity.description && (
+                  <p><strong>Description:</strong> {activity.description}</p>
+                )}
+                <p><strong>Activity ID:</strong> {activity.id}</p>
+                {activity.destinations && activity.destinations.length > 0 ? (
+                  <p>
+                    <strong>Destinations:</strong>
+                    {activity.destinations.map((destination, index) => (
+                      <span
+                        key={index}
+                        onClick={() => handleServiceClick(destination)}
+                        className="member-name"
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                      >
+                        {destination}
+                        {index < activity.destinations.length - 1 && ', '}
+                      </span>
+                    ))}
+                  </p>
+                ) : (
+                  <p><strong>Destinations:</strong> None</p>
+                )}
+                <p><strong>Duration:</strong> {activity.duration} hours</p>
+                <p><strong>Maximum Participants:</strong> {activity.max_participants}</p>
+                <p><strong>Updated at:</strong> {new Date(activity.updated_at).toLocaleString()}</p>
+                <div className="add_review">
+                  {canUpdate && (
+                    <>
+                      <button
+                        type="button"
+                        className="cta-button"
+                        onClick={() => setUpdateMode(true)} // Switch to update mode
+                      >
+                        Update
+                      </button>
+                      <button
+                        type="button"
+                        className="cta-button"
+                      >
+                        Delete Location
+                      </button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            {successMessage && <p className="success-message">{successMessage}</p>}
           </div>
         </div>
       </section>

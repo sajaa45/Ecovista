@@ -742,6 +742,27 @@ flex: 1; /* Pushes footer to the bottom */
   border-radius: 8px;
   margin-top: 20px;
 }
+/* Styling for error messages */
+/* Simple styling for error messages */
+.error-message {
+  color: red;
+  font-size: 1rem;
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 3px;
+  text-align: center;
+}
+
+/* Simple styling for success messages */
+.success-message {
+  color: green;
+  font-size: 1rem;
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 3px;
+  text-align: center;
+}
+
 
 .review-header {
   display: flex;

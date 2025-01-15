@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddReview } from '../reviews/AddReview';
+import UpdateDestination from './UpdateDestination'; // Import the UpdateDestination component
 
 const DestinationItem = () => {
   const { name } = useParams();
@@ -12,8 +13,11 @@ const DestinationItem = () => {
   const [username, setUsername] = useState(null);
   const [role, setRole] = useState(null);
   const [image, setImage] = useState(null);
-  const [userId, setUserId] = useState(null); // Store user ID from JWT
+  const [userId, setUserId] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [updateMode, setUpdateMode] = useState(false); // Control update mode
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -40,13 +44,24 @@ const DestinationItem = () => {
         setRole(decodedToken.role);
         setUsername(decodedToken.username);
         setImage(decodedToken.img || 'https://static.vecteezy.com/system/resources/previews/004/141/669/large_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg');
-        setUserId(decodedToken.user_id); // Extract and store user ID
+        setUserId(decodedToken.user_id);
       } catch (error) {
         console.error('Failed to decode token:', error);
       }
     }
     fetchDestinationDetails(name);
   }, [name]);
+
+  const handleServiceClick = (activity) => {
+    navigate(`/activities/${activity}`);
+  };
+
+  const handleUpdateSuccess = (updatedDestination) => {
+    setDestination(updatedDestination);
+    setUpdateMode(false);  // Close update mode
+    setSuccessMessage('Destination updated successfully!');
+    setErrorMessage('');
+  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -56,10 +71,6 @@ const DestinationItem = () => {
     return <p>No destination found</p>;
   }
 
-  // Handle click for activities, dynamically using the clicked activity
-  const handleServiceClick = (activity) => {
-    navigate(`/activities/${activity}`); // Navigate using the specific activity
-  };
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -68,51 +79,65 @@ const DestinationItem = () => {
             <img src={destination.image_url} alt={destination.name} />
           </div>
           <div className="destt_info">
-            <h1><strong>{destination.name.toUpperCase()}</strong></h1>
-            <p><strong>Location:</strong> {destination.location}</p>
-            {destination.description && destination.description.length > 0 && (
-              <p><strong>Description:</strong> {destination.description}</p>
+            {updateMode ? (
+              <UpdateDestination
+                destination={destination}
+                onUpdateSuccess={handleUpdateSuccess} // Pass success callback
+                onCancel={() => setUpdateMode(false)}  // Cancel callback
+              />
+            ) : (
+              <>
+                <h1><strong>{destination.name.toUpperCase()}</strong></h1>
+                <p><strong>Location:</strong> {destination.location}</p>
+                {destination.description && (
+                  <p><strong>Description:</strong> {destination.description}</p>
+                )}
+                <p><strong>Destination id:</strong> {destination.id}</p>
+                {destination.activities && (
+                  <p>
+                    <strong>Activities:</strong>
+                    {destination.activities.map((activity, index) => (
+                      <span
+                        key={index}
+                        onClick={() => handleServiceClick(activity)}
+                        className="member-name"
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                      >
+                        {activity}
+                        {index < destination.activities.length - 1 && ', '}
+                      </span>
+                    ))}
+                  </p>
+                )}
+                {(role === 'admin' || userId === destination.creator_id) ? (
+                  <div className="add_review">
+                    <button
+                      type="button"
+                      className="cta-button"
+                      onClick={() => setUpdateMode(true)}  // Switch to update mode
+                    >
+                      Update
+                    </button>
+                    <button type="button" className="cta-button">
+                      Delete Location
+                    </button>
+                  </div>
+                ) : (
+                  <AddReview
+                    buttonText="Add Your Review"
+                    title="Add Your Review"
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    name={destination.name.toUpperCase()}
+                    id={destination.id}
+                    username={username}
+                    img={image}
+                  />
+                )}
+              </>
             )}
-            <p><strong>Destination ID:</strong> {destination.id}</p>
-            {destination.activities && destination.activities.length > 0 && (
-              <p><strong>Activities:</strong>
-                {destination.activities.map((activity, index) => (
-                  <span 
-                    key={index} 
-                    onClick={() => handleServiceClick(activity)} 
-                    className="member-name"
-                    style={{ cursor: 'pointer', color: 'blue' }}
-                  >
-                    {activity}
-                    {index < destination.activities.length - 1 && ', '}
-                  </span>
-                ))}
-              </p>
-            )}
-            <div className='add_review'>
-              {(role === "admin" || userId === destination.creator_id) ? (
-                <><a href="#services-section">
-                  <button className="cta-button">Update</button>
-                </a>
-                <button
-                type="button"
-                className="cta-button"
-              >
-                Delete Location
-              </button></>
-              ) : (
-                <AddReview
-                  buttonText="Add Your Review"
-                  title="Add Your Review"
-                  isOpen={isOpen}
-                  setIsOpen={setIsOpen}
-                  name={destination.name.toUpperCase()}
-                  id={destination.id}
-                  username={username}
-                  img={image}
-                />
-              )}
-            </div>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            {successMessage && <p className="success-message">{successMessage}</p>}
           </div>
         </div>
       </section>

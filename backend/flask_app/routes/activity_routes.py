@@ -26,8 +26,12 @@ class ActivityItem(MethodView):
     @bp.arguments(ActivitySchema)
     @bp.response(200, ActivitySchema)
     def put(self, activity_data, name):
-        # Fetch the activity by ID
-        activity = ActivityModel.query.get_or_404(name)
+        # Fetch the activity by name
+        activity = ActivityModel.query.filter_by(name=name).first_or_404()
+        
+        # Check if the activity name already exists in the database (if different from the current one)
+        if activity_data.get('name', activity.name) != activity.name and ActivityModel.query.filter_by(name=activity_data.get('name')).first():
+            abort(400, message="Activity with this name already exists.")
 
         # Update activity details
         activity.name = activity_data["name"]
@@ -35,16 +39,44 @@ class ActivityItem(MethodView):
         activity.duration = activity_data["duration"]
         activity.max_participants = activity_data["max_participants"]
 
-        # Update destinations for the activity
-        destination_ids = activity_data.get("destinations", [])
-        destinations = DestinationModel.query.filter(DestinationModel.name.in_(destination_ids)).all()
+        # Get the list of destination names from the request
+        new_destination_names = activity_data.get("destinations", [])
 
-        if not destinations:
-            abort(404, message="No destinations found.")
+        # Validate that the new_destination_names is a list of strings
+        if not isinstance(new_destination_names, list) or not all(isinstance(name, str) for name in new_destination_names):
+            abort(400, message="Destinations must be a list of strings.")
 
-        activity.destinations = destinations
+        # Convert destination names to lowercase for case-insensitive comparison
+        new_destination_names_lower = [name.lower() for name in new_destination_names]
 
+        # Query the database to check if the destinations exist
+        destinations = DestinationModel.query.filter(
+            DestinationModel.name.in_(new_destination_names_lower)
+        ).all()
+
+        # Check for any missing destinations
+        found_destination_names = {destination.name.lower() for destination in destinations}
+        missing_destinations = set(new_destination_names_lower) - found_destination_names
+
+        if missing_destinations:
+            missing_destinations_original_case = [
+                name for name in new_destination_names if name.lower() in missing_destinations
+            ]
+            abort(404, message=f"These destinations were not found: {', '.join(missing_destinations_original_case)}.")
+
+        # Ensure no duplicate destination names
+        if len(set(new_destination_names_lower)) != len(new_destination_names):
+            abort(400, message="Duplicate destination names are not allowed.")
+
+        # Update the activity's destinations
+        activity.destinations = new_destination_names 
+        activity.name = activity_data.get("name", activity.name)  # Update name if provided
+        activity.description = activity_data.get("description", activity.description)  # Update description if provided
+        activity.duration = activity_data.get("duration", activity.duration)  # Update duration if provided
+        activity.max_participants = activity_data.get("max_participants", activity.max_participants)  # Update max_participants
         db.session.commit()
+        # Commit the changes t
+            # Return the updated activity
         return activity
 
 
@@ -80,6 +112,7 @@ class ActivityList(MethodView):
 
         # Debug print for user info (can be removed later)
         print(f"Current user ID: {current_user.id}")
+
         # Extract the destination names from the request data
         destination_names = activity_data.get("destinations", [])
 
@@ -112,19 +145,14 @@ class ActivityList(MethodView):
         if existing_activity:
             abort(400, message=f"An activity with the name '{activity_name}' already exists.")
 
-        # Ensure the destination names are unique
-        existing_destinations = set(dest.name.lower() for dest in destinations)
-        if len(existing_destinations) != len(destination_names_lower):
-            abort(400, message="One or more destination names are duplicated in the request.")
-
         # Create the new activity with the provided data
         activity = ActivityModel(
             name=activity_data["name"],
             description=activity_data.get("description"),
             duration=activity_data["duration"],
             max_participants=activity_data["max_participants"],
-            destinations=destination_names , # Store the original names of destinations
-            creator_id=current_user.id  
+            destinations=destination_names,  # Store the original names of destinations as strings
+            creator_id=current_user.id
         )
 
         # Add the activity to the database and commit the transaction
@@ -132,4 +160,4 @@ class ActivityList(MethodView):
         db.session.commit()
 
         # Return the created activity
-        return activity
+        return activity  # Marshmallow will serialize it using the ActivitySchema

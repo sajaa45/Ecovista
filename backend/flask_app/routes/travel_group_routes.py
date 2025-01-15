@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from extensions import db
 from models.travel_group import TravelGroupModel
 from marshmallow import ValidationError
+from models.destination import DestinationModel
 from schemas import TravelGroupSchema  # Import the appropriate schemas for serialization
 from routes.user_routes import get_current_user, get_current_user_front
 import jwt
@@ -41,27 +42,62 @@ class TravelGroupItem(MethodView):
 
 
 
-    # Update or create a travel group
     @bp.arguments(TravelGroupSchema)
     @bp.response(200, TravelGroupSchema)
     def put(self, travel_group_data, group_name):
-        # Attempt to fetch the existing group
-        travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first()
-
-        if travel_group:
-            # Update existing travel group with new data
-            travel_group.group_name = travel_group_data["group_name"]
-            travel_group.destination = travel_group_data["destination"]
-            travel_group.start_date = travel_group_data["start_date"]
-            travel_group.end_date = travel_group_data["end_date"]
-            travel_group.description = travel_group_data["description"]
-            travel_group.contact_info = travel_group_data["contact_info"]
+        token = request.headers.get('Authorization')
+        if token:
+            try:
+                token = token.split()[1]  # Extract the token
+                current_user = get_current_user_front(token)  # Front-end-specific token handling
+            except (IndexError, Exception) as e:
+                abort(401, message=f"Invalid or expired token: {str(e)}")  # Log token errors
         else:
-            # If the group doesn't exist, create a new one
-            travel_group = TravelGroupModel(group_name=group_name, **travel_group_data)
-            db.session.add(travel_group)
+            current_user = get_current_user()
+        if not current_user:
+            abort(401, message="Unauthorized access")
+        
+        # Validate required fields
+        required_fields = ["group_name", "destination", "start_date", "end_date", "contact_info"]
+        for field in required_fields:
+            if not travel_group_data.get(field):
+                abort(400, message=f"{field.replace('_', ' ').capitalize()} field is required.")
 
-        db.session.commit()
+        # Check for duplicate group_name
+        duplicate_group = TravelGroupModel.query.filter(
+            TravelGroupModel.group_name == travel_group_data["group_name"],
+            TravelGroupModel.group_name != group_name
+        ).first()
+        if duplicate_group:
+            abort(400, message=f"A travel group with the name '{travel_group_data['group_name']}' already exists.")
+        
+        # Validate the destination field
+        destination_name = travel_group_data["destination"].strip()
+        destination = DestinationModel.query.filter_by(name=destination_name.lower()).first()
+        if not destination:
+            abort(404, message=f"The destination '{destination_name}' was not found.")
+        
+        # Fetch or handle missing travel group
+        travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first()
+        if not travel_group:
+            abort(404, message=f"Travel group with name '{group_name}' not found.")
+
+        # Update travel group
+        travel_group.group_name = travel_group_data["group_name"]
+        travel_group.destination = travel_group_data["destination"]
+        travel_group.start_date = travel_group_data["start_date"]
+        travel_group.end_date = travel_group_data["end_date"]
+        travel_group.description = travel_group_data.get("description", travel_group.description)
+        travel_group.contact_info = travel_group_data["contact_info"]
+        travel_group.creator_id = current_user.id
+
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"SQLAlchemy Error: {e}")  # Log exact error details
+            abort(500, message="An error occurred while saving the travel group.")
+
         return travel_group
 
 @bp.route('/travel-group')
@@ -117,7 +153,15 @@ class TravelGroupList(MethodView):
     
         if not current_user:
             abort(401, message="Unauthorized access")  # If no valid user, return unauthorized access
-    
+        # Validate the destination field
+        destination_name = travel_group_data.get('destination', '').strip()
+        if not destination_name:
+            abort(400, message="Destination field is required.")
+
+        # Check if the destination exists in the DestinationModel
+        destination = DestinationModel.query.filter_by(name=destination_name.lower()).first()
+        if not destination:
+            abort(404, message=f"The destination '{destination_name}' was not found.")
         # Create the TravelGroup instance from the data
         travel_group = TravelGroupModel(**travel_group_data)
         

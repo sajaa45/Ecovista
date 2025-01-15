@@ -29,9 +29,54 @@ class DestinationItem(MethodView):
             'location': destination.location,
             'image_url': destination.image_url,
             'activities': activity_names , # Include the list of activities related to the destination
-            'creator_id': destination.creator_id
+            'creator_id': destination.creator_id,
+            'description': destination.description
         }
 
+        return result
+    @bp.arguments(DestinationSchema)
+    @bp.response(200, DestinationSchema)
+    def put(self, updated_data, name):
+        # Fetch the existing destination by name
+        destination = DestinationModel.query.filter_by(name=name).first_or_404()
+        if updated_data.get('name', destination.name) != destination.name and DestinationModel.query.filter_by(name=updated_data.get('name')).first():
+            abort(400, message="Destination with this name already exists.")
+
+        old_name = destination.name
+
+        # Fetch activities referencing the old destination name before updating
+        activities_to_update = ActivityModel.query.filter(ActivityModel.destinations.contains([old_name])).all()
+
+        # Collect activity names
+        activity_names = [activity.name for activity in activities_to_update]
+
+        # Update the destination fields
+        destination.name = updated_data.get('name', destination.name)
+        destination.location = updated_data.get('location', destination.location)
+        destination.image_url = updated_data.get('image_url', destination.image_url)
+        destination.description = updated_data.get('description', destination.description)
+        
+        # If the destination name has changed, update activities' references to the old name
+        if old_name != destination.name:
+            for activity in activities_to_update:
+                # Replace all occurrences of old_name with the new destination name in the destinations list
+                activity.destinations = [
+                    destination.name if dest == old_name else dest for dest in activity.destinations
+                ]
+                db.session.add(activity)  # Ensure activity updates are saved
+
+        # Add the updated destination to the session
+        db.session.add(destination)
+        db.session.commit()
+
+        result = {
+            'name': destination.name,
+            'location': destination.location,
+            'image_url': destination.image_url,
+            'activities': activity_names , # Include the list of activities related to the destination
+            'creator_id': destination.creator_id,
+            'description': destination.description
+        }
         return result
 
     def delete(self, name):
@@ -83,6 +128,7 @@ class DestinationList(MethodView):
                 'location': destination.location,
                 'image_url': destination.image_url,
                 'activities': activity_names  # Include activity names
+                
             })
 
         return result
