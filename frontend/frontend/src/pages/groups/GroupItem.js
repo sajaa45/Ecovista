@@ -176,7 +176,6 @@ const GroupItem = () => {
               <span
                         onClick={() => handleServicClick(group.destination)}
                         className="member-name"
-                        style={{ cursor: 'pointer', color: 'blue' }}
                       >
                         {group.destination}
                       </span>

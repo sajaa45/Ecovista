@@ -127,7 +127,6 @@ const ActivityItem = () => {
                         key={index}
                         onClick={() => handleServiceClick(destination)}
                         className="member-name"
-                        style={{ cursor: 'pointer', color: 'blue' }}
                       >
                         {destination}
                         {index < activity.destinations.length - 1 && ', '}

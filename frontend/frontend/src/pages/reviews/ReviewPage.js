@@ -78,7 +78,7 @@ const ReviewPage = () => {
                     className="user-image"
                   /><span
                   onClick={() => handleServiceClick(review.username)}
-                  className="member-name"
+                  className="memberr-name"
                 >
                   <p className="username">{review.username}</p></span>
                 </div>

@@ -41,3 +41,21 @@ class ReviewList(MethodView, ):
             abort(500, message=f"An error occurred while creating the review: {str(e)}")
         
         return review
+@bp.route('/review/<int:review_id>')
+class Review(MethodView):
+    @bp.response(200, ReviewSchema)
+    def delete(self, review_id):
+        """Delete a review by ID."""
+        review = ReviewModel.query.get(review_id)
+
+        if not review:
+            abort(404, message="Review not found")
+
+        
+        try:
+            db.session.delete(review)
+            db.session.commit()
+            return {"message": "Review deleted successfully"}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while deleting the review: {str(e)}")

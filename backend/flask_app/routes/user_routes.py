@@ -99,15 +99,26 @@ class UserDetail(MethodView):
 
     def delete(self, username):
         """Delete a user by username"""
-        user = UserModel.query.filter_by(username=username).first_or_404()
+        token = request.headers.get('Authorization')
 
-        current_user = get_current_user()  # Get the current logged-in user from the JWT token
-        
+        if token:
+            # Token provided (e.g., from the front-end)
+            try:
+                token = token.split()[1]
+                current_user = get_current_user_front(token)  # Front-end-specific token handling
+            except Exception as e:
+                abort(401, message="Invalid or expired token")
+        else:
+            # No token provided (e.g., for Postman testing)
+            current_user = get_current_user()  # Default or testing user
+
+        if not current_user:
+            abort(401, message="Unauthorized access")
         # Only the admin or the user themselves can delete the account
         if current_user.username != username and current_user.role != "admin":
             abort(403, message="Permission denied.")
         
-        db.session.delete(user)
+        db.session.delete(current_user)
         db.session.commit()
         return {"message": "User  deleted successfully."}
 
