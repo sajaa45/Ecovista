@@ -54,7 +54,7 @@ const UpdateActivity = ({ activity, onUpdateSuccess, onCancel }) => {
   };
 
   return (
-    <div className="activity-update">
+    <div className="update">
       <h2>Update Activity</h2>
       {errorMessage && <p className="error-message">{errorMessage}</p>}
       {successMessage && <p className="success-message">{successMessage}</p>}

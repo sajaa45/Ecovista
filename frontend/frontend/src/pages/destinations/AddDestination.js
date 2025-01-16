@@ -45,61 +45,65 @@ export const AddDestination = ({ setIsAdding, onDestinationAdded }) => {
         console.error('Error adding destination:', error);
       }
     };
-  
     return (
-      <div className="add_review">
-        <h2>Add New Destination</h2>
-        <form className="add-review-form" onSubmit={handleSubmit}>
-          
-          {errorMessage && <p className="error-message" style={{color:"red"}}>{errorMessage}</p>} {/* Display error message */}
-          <label className="input-field">
-            Name:
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="input-field"
-            />
-          </label>
-          <label className="input-field">
-            Location:
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              required
-              className="input-field"
-            />
-          </label>
-          <label className="input-field">
-            Description:
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              className="input-field"
-            />
-          </label>
-          <label className="input-field">
-            Image URL:
-            <input
-              type="text"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="input-field"
-            />
-          </label>
-          <button type="submit" className="cta-button">Add Destination</button>
-          <button
-            type="button"
-            className="cta-button"
-            onClick={() => setIsAdding(false)}
-          >
-            Cancel
-          </button>
-        </form>
+      <div className="overlay">
+        <div className="popout-form-container">
+          <h2 className="popout-header">Add New Destination</h2>
+          <form className="popout-form" onSubmit={handleSubmit}>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            <label>
+              Name:
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="input-field"
+              />
+            </label>
+            <label>
+              Location:
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+                className="input-field"
+              />
+            </label>
+            <label>
+              Description:
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="input-field"
+              />
+            </label>
+            <label>
+              Image URL:
+              <input
+                type="text"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                className="input-field"
+              />
+            </label>
+            <div className="button-group">
+              <button type="submit" className="cta-button">Add Destination</button>
+              <button
+                type="button"
+                className="cta-button cancel-button"
+                onClick={() => setIsAdding(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
+    
+    
   };
   

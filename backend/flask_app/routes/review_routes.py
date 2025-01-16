@@ -24,8 +24,6 @@ class ReviewList(MethodView, ):
     @bp.arguments(ReviewSchema)
     @bp.response(201, ReviewSchema)
     def post(self, review_data):
-        token = request.headers.get('Authorization')
-        token = token.split()[1]
         review = ReviewModel(
         destination=review_data['destination'],
         rating=review_data['rating'],

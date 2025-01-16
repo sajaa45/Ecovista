@@ -55,41 +55,45 @@ const UpdateDestination = ({ destination, onUpdateSuccess, onCancel }) => {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
       {successMessage && <p className="success-message">{successMessage}</p>}
       <form onSubmit={handleSubmit}>
-        <label>
-          Name:
+        <div className="form-group">
+          <label htmlFor="name">Name:</label>
           <input
+            id="name"
             type="text"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
           />
-        </label>
-        <label>
-          Location:
+        </div>
+        <div className="form-group">
+          <label htmlFor="location">Location:</label>
           <input
+            id="location"
             type="text"
             name="location"
             value={formData.location}
             onChange={handleInputChange}
           />
-        </label>
-        <label>
-          Image URL:
+        </div>
+        <div className="form-group">
+          <label htmlFor="image_url">Image URL:</label>
           <input
+            id="image_url"
             type="text"
             name="image_url"
             value={formData.image_url}
             onChange={handleInputChange}
           />
-        </label>
-        <label>
-          Description:
+        </div>
+        <div className="form-group">
+          <label htmlFor="description">Description:</label>
           <textarea
+            id="description"
             name="description"
             value={formData.description}
             onChange={handleInputChange}
           />
-        </label>
+        </div>
         <div className="button-group">
           <button type="submit" className="cta-button">Save Changes</button>
           <button type="button" className="cta-button" onClick={onCancel}>Cancel</button>
@@ -97,6 +101,7 @@ const UpdateDestination = ({ destination, onUpdateSuccess, onCancel }) => {
       </form>
     </div>
   );
+  
 };
 
 export default UpdateDestination;

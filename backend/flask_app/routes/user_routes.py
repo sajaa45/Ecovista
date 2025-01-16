@@ -115,8 +115,6 @@ class UserDetail(MethodView):
     @bp.arguments(UserSchema)  # Only validate fields defined in UserSchema
     @bp.response(200, UserSchema)
     def put(self, user_data, username):
-        token = request.headers.get('Authorization')
-        token = token.split()[1]
         """Update an existing user by username"""
         # Fetch the user from the database
         user = UserModel.query.filter_by(username=username).first()

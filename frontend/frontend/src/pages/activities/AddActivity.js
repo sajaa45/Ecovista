@@ -53,75 +53,80 @@ export const AddActivity = ({ setIsAdding, refreshPage }) => {
   };
 
   return (
-    <div className="add_review">
-      <h2>Add New Activity</h2>
-      <form className="add-review-form" onSubmit={handleSubmit}>
-        
-        {errorMessage && <p className="error-message" style={{color:"red"}}>{errorMessage}</p>} {/* Display error message */}
-        
-        <label className="input-field">
-          Name:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="input-field"
-          />
-        </label>
-        
-        <label className="input-field">
-          Description:
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="input-field"
-          />
-        </label>
-        
-        <label className="input-field">
-          Duration (in hours):
-          <input
-            type="number"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            required
-            className="input-field"
-          />
-        </label>
-        
-        <label className="input-field">
-          Max Participants:
-          <input
-            type="number"
-            value={maxParticipants}
-            onChange={(e) => setMaxParticipants(e.target.value)}
-            required
-            className="input-field"
-          />
-        </label>
-
-        <label className="input-field">
-          Destinations (comma-separated):
-          <input
-            type="text"
-            value={destinations}
-            onChange={(e) => setDestinations(e.target.value)}
-            required
-            className="input-field"
-          />
-        </label>
-        
-        <button type="submit" className="cta-button">Add Activity</button>
-        <button
-          type="button"
-          className="cta-button"
-          onClick={() => setIsAdding(false)}
-        >
-          Cancel
-        </button>
-      </form>
+    <div className="overlay">
+      <div className="popout-form-container">
+        <h2 className="popout-header">Add New Activity</h2>
+        <form className="popout-form" onSubmit={handleSubmit}>
+          
+          {errorMessage && <p className="error-message" style={{ color: "red" }}>{errorMessage}</p>} {/* Display error message */}
+          
+          <label>
+            Name:
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="input-field"
+            />
+          </label>
+          
+          <label>
+            Description:
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              className="input-field"
+            />
+          </label>
+          
+          <label>
+            Duration (in hours):
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              required
+              className="input-field"
+            />
+          </label>
+          
+          <label>
+            Max Participants:
+            <input
+              type="number"
+              value={maxParticipants}
+              onChange={(e) => setMaxParticipants(e.target.value)}
+              required
+              className="input-field"
+            />
+          </label>
+  
+          <label>
+            Destinations (comma-separated):
+            <input
+              type="text"
+              value={destinations}
+              onChange={(e) => setDestinations(e.target.value)}
+              required
+              className="input-field"
+            />
+          </label>
+          
+          <div className="button-group">
+            <button type="submit" className="cta-button">Add Activity</button>
+            <button
+              type="button"
+              className="cta-button cancel-button"
+              onClick={() => setIsAdding(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
+  
 };

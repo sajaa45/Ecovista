@@ -145,6 +145,9 @@ const GroupItem = () => {
     const handleServiceClick = (route) => {
       navigate(`/users/${route}`);
     };
+    const handleServicClick = (route) => {
+      navigate(`/destinations/${route}`);
+    };
   return (
     <div className="Destinationpage">
       <section name="destination-item-section" className="destination-item">
@@ -169,7 +172,15 @@ const GroupItem = () => {
                 </p>
               )}
               <p>
-                <strong>Destination:</strong> {group.destination}
+              <strong>Destination:</strong>
+              <span
+                        onClick={() => handleServicClick(group.destination)}
+                        className="member-name"
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                      >
+                        {group.destination}
+                      </span>
+                 
               </p>
               { group.members && group.members.length > 0 ? (
               <p>

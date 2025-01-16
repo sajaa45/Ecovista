@@ -51,13 +51,13 @@ const ReviewPage = () => {
   return (
     <div className="Destinationpage">
       <section id="review-section" className="reviews">
-        <div className="search-container">
+        <div className="search-containerr">
           <input
             type="text"
             placeholder="Search for a review by destination..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            className="search-inputt"
           />
         </div>
 

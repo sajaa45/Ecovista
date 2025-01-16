@@ -66,7 +66,6 @@ export function AddReview({ children, buttonText = "Open Modal", title = "Modal"
     }
   };
   
-  
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="cta-button">

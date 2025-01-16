@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
+
 export const AddGroup = ({ setIsAdding }) => {
   const [formData, setFormData] = useState({
     group_name: '',
@@ -10,7 +11,7 @@ export const AddGroup = ({ setIsAdding }) => {
     contact_info: '',
   });
 
-  const [errorMessage, setErrorMessage] = useState(''); // Use the same error message state as AddDestination
+  const [errorMessage, setErrorMessage] = useState(''); // Error message state
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -23,116 +24,133 @@ export const AddGroup = ({ setIsAdding }) => {
     setLoading(true);
     setErrorMessage(''); // Reset error message before request
     const token = Cookies.get('jwt'); // Get the JWT token from cookies
-          console.log('JWT Token:', token);
-          if (!token) {
-            setErrorMessage('Missing JWT token. Please log in.'); // Set error message if no token
-            return;
-          }
+
+    if (!token) {
+      setErrorMessage('Missing JWT token. Please log in.'); // Display error if no token
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('http://127.0.0.1:5000/travel-group', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(formData),
       });
 
+      // Check for HTTP errors
       if (!response.ok) {
-        const errorData = await response.json(); // Parse error response
-        setErrorMessage(errorData.msg || 'Failed to create travel group'); // Set error message
-        throw new Error(errorData.msg || 'Failed to create travel group');
+        const errorData = await response.json(); // Parse the error response
+        setErrorMessage(errorData.message || 'Failed to create travel group'); // Display the error message from backend
+        throw new Error(errorData.message || 'Failed to create travel group');
       }
 
-      const data = await response.json();
+      const data = await response.json(); // Parse the successful response
       console.log('Group created:', data);
-
-      window.location.reload(); // Reload to show new group
+      window.location.reload(); // Reload to show the new group
     } catch (err) {
       console.error('Error adding group:', err);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading state
     }
   };
 
   return (
-    <div className="add_review">
-      <h2>Add New Travel Group</h2>
-      {errorMessage && <p className="error-message" style={{ color: 'red' }}>{errorMessage}</p>} {/* Error message */}
-      <form className="add-review-form" onSubmit={handleSubmit}>
-        <label className="input-field">
-          Group Name:
-          <input
-            type="text"
-            name="group_name"
-            value={formData.group_name}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </label>
-        <label className="input-field">
-          Destination:
-          <input
-            type="text"
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </label>
-        <label className="input-field">
-          Start Date:
-          <input
-            type="date"
-            name="start_date"
-            value={formData.start_date}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </label>
-        <label className="input-field">
-          End Date:
-          <input
-            type="date"
-            name="end_date"
-            value={formData.end_date}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </label>
-        <label className="input-field">
-          Description:
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="input-field"
-          />
-        </label>
-        <label className="input-field">
-          Contact Info:
-          <input
-            type="text"
-            name="contact_info"
-            value={formData.contact_info}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </label>
-        <button type="submit" className="cta-button" disabled={loading}>
-          {loading ? 'Adding...' : 'Add Group'}
-        </button>
-        <button
-          type="button"
-          className="cta-button"
-          onClick={() => setIsAdding(false)}
-        >
-          Cancel
-        </button>
-      </form>
+    <div className="overlay">
+      <div className="popout-form-container">
+        <h2 className="popout-header">Add New Travel Group</h2>
+
+        {/* Display the error message if exists */}
+        {errorMessage && <p className="error-message" style={{ color: 'red' }}>{errorMessage}</p>}
+
+        <form className="popout-form" onSubmit={handleSubmit}>
+          <label>
+            Group Name:
+            <input
+              type="text"
+              name="group_name"
+              value={formData.group_name}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+
+          <label>
+            Destination:
+            <input
+              type="text"
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+
+          <label>
+            Start Date:
+            <input
+              type="date"
+              name="start_date"
+              value={formData.start_date}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+
+          <label>
+            End Date:
+            <input
+              type="date"
+              name="end_date"
+              value={formData.end_date}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+
+          <label>
+            Description:
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="input-field"
+            />
+          </label>
+
+          <label>
+            Contact Info:
+            <input
+              type="text"
+              name="contact_info"
+              value={formData.contact_info}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+
+          <div className="button-group">
+            <button type="submit" className="cta-button" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Group'}
+            </button>
+            <button
+              type="button"
+              className="cta-button cancel-button"
+              onClick={() => setIsAdding(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

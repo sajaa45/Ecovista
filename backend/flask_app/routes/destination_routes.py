@@ -39,15 +39,18 @@ class DestinationItem(MethodView):
     def put(self, updated_data, name):
         # Fetch the existing destination by name
         destination = DestinationModel.query.filter_by(name=name).first_or_404()
-        if updated_data.get('name', destination.name) != destination.name and DestinationModel.query.filter_by(name=updated_data.get('name')).first():
+
+        # Check if the updated name already exists
+        if updated_data.get('name', destination.name) != destination.name and \
+        DestinationModel.query.filter_by(name=updated_data.get('name')).first():
             abort(400, message="Destination with this name already exists.")
 
         old_name = destination.name
 
-        # Fetch activities referencing the old destination name before updating
+        # Fetch activities referencing the old destination name
         activities_to_update = ActivityModel.query.filter(ActivityModel.destinations.contains([old_name])).all()
 
-        # Collect activity names
+        # Collect activity names for response
         activity_names = [activity.name for activity in activities_to_update]
 
         # Update the destination fields
@@ -55,45 +58,53 @@ class DestinationItem(MethodView):
         destination.location = updated_data.get('location', destination.location)
         destination.image_url = updated_data.get('image_url', destination.image_url)
         destination.description = updated_data.get('description', destination.description)
-        
-        # If the destination name has changed, update activities' references to the old name
+
+        # Update activities if the name has changed
         if old_name != destination.name:
             for activity in activities_to_update:
-                # Replace all occurrences of old_name with the new destination name in the destinations list
+                # Update activity destinations
                 activity.destinations = [
                     destination.name if dest == old_name else dest for dest in activity.destinations
                 ]
-                db.session.add(activity)  # Ensure activity updates are saved
+                db.session.add(activity)  # Add updated activity to the session
 
         # Add the updated destination to the session
         db.session.add(destination)
-        db.session.commit()
 
+        try:
+            # Commit the transaction
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while updating the destination: {str(e)}")
+
+        # Prepare the result
         result = {
             'name': destination.name,
             'location': destination.location,
             'image_url': destination.image_url,
-            'activities': activity_names , # Include the list of activities related to the destination
+            'activities': activity_names,
             'creator_id': destination.creator_id,
             'description': destination.description
         }
+
         return result
 
-    def delete(self, name):
-        # Fetch the destination by name instead of id
-        destination = DestinationModel.query.filter_by(name=name).first_or_404()
+        def delete(self, name):
+            # Fetch the destination by name instead of id
+            destination = DestinationModel.query.filter_by(name=name).first_or_404()
 
-        # Get activities linked to this destination before deleting
-        activity_names = []
-        for activity in ActivityModel.query.filter(ActivityModel.destinations.ilike(f"%{destination.name}%")).all():
-            activity_names.append(activity.name)
+            # Get activities linked to this destination before deleting
+            activity_names = []
+            for activity in ActivityModel.query.filter(ActivityModel.destinations.ilike(f"%{destination.name}%")).all():
+                activity_names.append(activity.name)
 
-        # Delete the destination
-        db.session.delete(destination)
-        db.session.commit()
+            # Delete the destination
+            db.session.delete(destination)
+            db.session.commit()
 
-        # Return the activities that were linked to this destination
-        return {"message": "Destination deleted successfully.", "activities": activity_names}
+            # Return the activities that were linked to this destination
+            return {"message": "Destination deleted successfully."}
 
 
 
