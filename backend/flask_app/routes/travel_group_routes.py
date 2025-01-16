@@ -25,13 +25,6 @@ class TravelGroupItem(MethodView):
         # Fetch the travel group or raise a 404 error if not found
         travel_group = TravelGroupModel.query.filter_by(group_name=group_name).first_or_404()
 
-        # Get the current user (assumes a function `get_current_user` exists)
-        user = get_current_user()
-
-        # Check if the user is authorized to delete the group
-        if travel_group.owner_id != user.id:  # Assuming `owner_id` represents the creator of the group
-            abort(403, message="You don't have permission to delete this travel group.")
-
         try:
             db.session.delete(travel_group)
             db.session.commit()
@@ -139,7 +132,7 @@ class TravelGroupList(MethodView):
     @bp.response(201, TravelGroupSchema)
     def post(self, travel_group_data):
         token = request.headers.get('Authorization')
-    
+
         # Determine how to handle user authentication
         if token:
             try:
@@ -150,24 +143,38 @@ class TravelGroupList(MethodView):
         else:
             # No token provided (for testing or Postman)
             current_user = get_current_user()  # Fallback to default or testing user
-    
+
         if not current_user:
             abort(401, message="Unauthorized access")  # If no valid user, return unauthorized access
-        # Validate the destination field
-        destination_name = travel_group_data.get('destination', '').strip()
-        if not destination_name:
+
+        # Clean and validate the 'group_name' field
+        travel_group_data['group_name'] = travel_group_data['group_name'].strip()
+        if not travel_group_data['group_name']:
+            abort(400, message="Group name field is required.")
+
+        # Check for duplicate 'group_name'
+        duplicate_group = TravelGroupModel.query.filter_by(group_name=travel_group_data['group_name']).first()
+        if duplicate_group:
+            abort(400, message=f"A travel group with the name '{travel_group_data['group_name']}' already exists. Please choose a different name.")
+
+        # Validate the 'destination' field
+        travel_group_data['destination'] = travel_group_data['destination'].strip()
+        if not travel_group_data['destination']:
             abort(400, message="Destination field is required.")
 
         # Check if the destination exists in the DestinationModel
+        destination_name = travel_group_data['destination']
         destination = DestinationModel.query.filter_by(name=destination_name.lower()).first()
         if not destination:
             abort(404, message=f"The destination '{destination_name}' was not found.")
+
         # Create the TravelGroup instance from the data
         travel_group = TravelGroupModel(**travel_group_data)
-        
         travel_group.creator_id = current_user.id
+
         # Add the current user as a member to the group
         travel_group.add_member(current_user.username)
+
         try:
             db.session.add(travel_group)  # Add the group to the session
             db.session.commit()  # Commit to the database
@@ -175,8 +182,8 @@ class TravelGroupList(MethodView):
             db.session.rollback()  # Rollback the session in case of error
             print(f"Error details: {e}")
             abort(500, message="An error occurred while creating the travel group.")
-        
-        return travel_group 
+
+        return travel_group
 
 
 

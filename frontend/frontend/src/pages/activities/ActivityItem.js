@@ -48,7 +48,36 @@ const ActivityItem = () => {
       setLoading(false);
     }
   };
-
+  const handleDeleteActivity = () => {
+    if (window.confirm(`Are you sure you want to delete the activity: ${activity.name}?`)) {
+      const token = Cookies.get('jwt'); // Fetch token
+      if (!token) {
+        alert('Authentication required. Please log in.');
+        return;
+      }
+  
+      fetch(`http://127.0.0.1:5000/activity/${activity.name}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((err) => {
+              throw new Error(err.message || 'Failed to delete activity');
+            });
+          }
+          alert('Activity deleted successfully');
+          navigate(`/activities`); // Redirect to the destination page
+        })
+        .catch((error) => {
+          console.error('Error deleting activity:', error);
+          alert(error.message || 'Failed to delete activity');
+        });
+    }
+  };
+  
   const handleUpdateSuccess = (updatedActivity) => {
     setActivity(updatedActivity);
     setUpdateMode(false); // Close update mode
@@ -124,6 +153,7 @@ const ActivityItem = () => {
                       <button
                         type="button"
                         className="cta-button"
+                        onClick={handleDeleteActivity}
                       >
                         Delete Location
                       </button>

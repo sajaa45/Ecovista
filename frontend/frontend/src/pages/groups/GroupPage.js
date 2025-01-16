@@ -37,6 +37,11 @@ const GroupPage = () => {
     group.group_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleGroupAdded = (newGroup) => {
+    setGroups([...groups, newGroup]); // Add the new group to the list
+    navigate(`/travel-groups/${newGroup.group_name}`); // Navigate to the newly created group
+  };
+
   return (
     <div className="Destinationpage">
       <section id="destination-section" className="destinations">
@@ -57,7 +62,7 @@ const GroupPage = () => {
           </button>
         )}
 
-        {isAdding && <AddGroup setIsAdding={setIsAdding} />}
+        {isAdding && <AddGroup setIsAdding={setIsAdding} onGroupAdded={handleGroupAdded} />}
 
         {loading ? (
           <div className="spinner-container">

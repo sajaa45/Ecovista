@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 import { useRefresh } from '../auth/RefreshContext';
 import { UserContext } from '../auth/UserProvider'; // Import the UserContext
-import FacebookIcon from './facebook.png';
-import GoogleIcon from './google.png';
 function LoginPage() {
   const   {toggleRefresh}  = useRefresh();
   const { login, loading } = useContext(UserContext); // Destructure login function and authentication status from context
@@ -80,14 +78,7 @@ function LoginPage() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </div>
-        <div className="oauth-container">
-          <button className="oauth-button facebook-button">
-            <img src={FacebookIcon} alt="Facebook" className="oauth-icon" />
-          </button>
-          <button className="oauth-button gmail-button">
-            <img src={GoogleIcon} alt="Google" className="oauth-icon" />
-          </button>
-        </div>
+        
       </form>
     </div>
   );

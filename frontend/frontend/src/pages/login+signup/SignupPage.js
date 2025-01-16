@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/App.css'; // Add this line to import your CSS file
-import FacebookIcon from './facebook.png'; // Import the Facebook image
-import GoogleIcon from './google.png';
 
 function SignupPage() {
     const [first_name, setFirstName] = useState("");
@@ -81,14 +79,7 @@ function SignupPage() {
                 <div className="button-container">
                     <button id="signup-button" type="submit">Sign Up</button>
                 </div>
-                <div className="oauth-container">
-                    <button className="oauth-button facebook-button">
-                    <img src={FacebookIcon} alt="Facebook" className="oauth-icon" />
-                    </button>
-                    <button className="oauth-button gmail-button">
-                    <img src={GoogleIcon} alt="Google" className="oauth-icon" />
-                    </button>
-                    </div> 
+                
             </form>
         </div>
     );

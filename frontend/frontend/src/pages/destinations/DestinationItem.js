@@ -55,7 +55,37 @@ const DestinationItem = () => {
   const handleServiceClick = (activity) => {
     navigate(`/activities/${activity}`);
   };
-
+  const handleDeleteDestination = () => {
+    if (window.confirm('Are you sure you want to delete this destination?')) {
+      const token = Cookies.get('jwt'); // Fetch token
+      if (!token) {
+        alert('Authentication required. Please log in.');
+        return;
+      }
+  
+      fetch(`http://127.0.0.1:5000/destinations/${destination.name}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((err) => {
+              throw new Error(err.message || 'Failed to delete destination');
+            });
+          }
+          alert('Destination deleted successfully');
+          navigate('/destinations'); // Redirect to the destinations page
+        })
+        .catch((error) => {
+          console.error('Error deleting destination:', error);
+          alert(error.message || 'Failed to delete destination');
+        });
+    }
+  };
+  
+  
   const handleUpdateSuccess = (updatedDestination) => {
     setDestination(updatedDestination);
     setUpdateMode(false);  // Close update mode
@@ -118,11 +148,13 @@ const DestinationItem = () => {
                     >
                       Update
                     </button>
-                    <button type="button" className="cta-button">
-                      Delete Location
-                    </button>
+                    <button
+                        className="cta-button delete-button"
+                        onClick={handleDeleteDestination}
+                      >Delete Location</button>
                   </div>
                 ) : (
+                  <div className='add_review'>
                   <AddReview
                     buttonText="Add Your Review"
                     title="Add Your Review"
@@ -132,7 +164,8 @@ const DestinationItem = () => {
                     id={destination.id}
                     username={username}
                     img={image}
-                  />
+                    buttonClass="cta-button"
+                  /></div>
                 )}
               </>
             )}

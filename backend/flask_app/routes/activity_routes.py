@@ -18,7 +18,7 @@ class ActivityItem(MethodView):
 
     def delete(self, name):
         # Fetch the activity by ID and delete
-        activity = ActivityModel.query.get_or_404(name)
+        activity = ActivityModel.query.filter_by(name=name).first_or_404()
         db.session.delete(activity)
         db.session.commit()
         return {"message": "Activity deleted successfully.", "Activity Name": name}
