@@ -35,8 +35,8 @@ export const AddDestination = ({ setIsAdding, onDestinationAdded }) => {
   
         if (!response.ok) {
           const errorData = await response.json(); // Parse the error response
-          setErrorMessage(errorData.msg || 'Failed to add destination'); // Set error message from backend
-          throw new Error(errorData.msg || 'Failed to add destination');
+          setErrorMessage(errorData.message || 'Failed to add destination'); // Set error message from backend
+          throw new Error(errorData.message || 'Failed to add destination');
         }
   
         onDestinationAdded(); // Trigger parent re-fetch of destinations

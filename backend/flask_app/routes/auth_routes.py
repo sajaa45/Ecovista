@@ -1,11 +1,9 @@
 from flask.views import MethodView
 import config
-from flask import request, session, jsonify, abort, make_response
+from flask import request, jsonify, make_response
 from flask_smorest import Blueprint
-from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import UserModel
 from schemas import UserSchema
-
 from extensions import db
 import jwt
 import datetime
@@ -13,7 +11,6 @@ import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# Helper function to validate password strength
 def is_strong_password(password):
     return (len(password) >= 8 and 
             any(c.isupper() for c in password) and 
@@ -35,9 +32,9 @@ def decode_jwt(token):
         print(payload)
         return payload
     except jwt.ExpiredSignatureError:
-        return None  # Token has expired
+        return None  
     except jwt.InvalidTokenError:
-        return None  # Invalid token
+        return None  
 
 @bp.route('/sign-up')
 class SignUp(MethodView):
@@ -61,7 +58,7 @@ class SignUp(MethodView):
             last_name=user_data['last_name'],
             username=user_data['username'],
             email=user_data['email'],
-            password=user_data["password"],  # Store the hashed password
+            password=user_data["password"], 
             role=role,
             image_url=user_data.get('image_url')
         )
@@ -69,7 +66,6 @@ class SignUp(MethodView):
         db.session.add(user)
         db.session.commit()
 
-        # Generate the JWT token
         token = generate_token(user.id, role, user.username, user.image_url)
 
         response = make_response(jsonify({"message": "User  created successfully. Please log in."}), 201)
@@ -91,28 +87,22 @@ class Login(MethodView):
         if not password:
             return {"error": "Password is required."}, 400
         
-                # Determine if identifier is email or username
         if "@" in identifier and re.match(r"[^@]+@[^@]+\.[^@]+", identifier):
             user = UserModel.query.filter_by(email=identifier).first()
         else:
             user = UserModel.query.filter_by(username=identifier).first()
 
-        # Check if the user exists
         if not user:
             return {"error": "User  not found, try logging in again"}, 404
         
-        # Check if the password is incorrect
-        if user.password != password:  # Direct comparison with plain-text password
+        if user.password != password:  
             return {"error": "Incorrect password, try again"}, 401
 
-        # Generate token
         token = generate_token(user.id, user.role, user.username, user.image_url)
 
-        # Create a response object
         response = make_response(jsonify({"message": "Login successful", "token": token, "username": user.username, "img":user.image_url}), 200)
         
-        # Set the JWT token as a cookie
-        response.set_cookie('jwt', token, httponly=True, secure=False)  # Set secure=True in production
+        response.set_cookie('jwt', token, httponly=True, secure=False)  
 
         return response
 
@@ -120,8 +110,7 @@ class Login(MethodView):
 class Logout(MethodView):
     def post(self):
         """Logout a user"""
-        # Clear the JWT cookie
         response = make_response(jsonify({"message": "Logout successful"}), 200)
-        response.set_cookie('jwt', '', expires=0)  # Clear the cookie
+        response.set_cookie('jwt', '', expires=0) 
 
         return response

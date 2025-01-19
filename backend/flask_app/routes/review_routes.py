@@ -2,13 +2,8 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from models.review import ReviewModel
-from models.destination import DestinationModel  # Assuming you have a DestinationModel
-from models.user import UserModel
 from extensions import db
 from schemas import ReviewSchema
-from flask_jwt_extended import jwt_required, get_jwt_identity
-
-from flask import request
 
 
 bp = Blueprint('Reviews', 'reviews', description="Operations on reviews")
@@ -20,7 +15,6 @@ class ReviewList(MethodView, ):
         reviews = ReviewModel.query.all()
         return reviews
 
-      # This ensures that the route is protected and requires a valid JWT token
     @bp.arguments(ReviewSchema)
     @bp.response(201, ReviewSchema)
     def post(self, review_data):
@@ -37,7 +31,7 @@ class ReviewList(MethodView, ):
             db.session.add(review)
             db.session.commit()
         except SQLAlchemyError as e:
-            db.session.rollback()  # Rollback in case of error
+            db.session.rollback()  
             abort(500, message=f"An error occurred while creating the review: {str(e)}")
         
         return review

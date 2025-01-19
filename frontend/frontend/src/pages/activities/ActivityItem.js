@@ -154,7 +154,7 @@ const ActivityItem = () => {
                         className="cta-button"
                         onClick={handleDeleteActivity}
                       >
-                        Delete Location
+                        Delete Activity
                       </button>
                     </>
                   )}

@@ -37,8 +37,8 @@ export const AddActivity = ({ setIsAdding, refreshPage }) => {
 
       if (!response.ok) {
         const errorData = await response.json(); // Parse the error response
-        setErrorMessage(errorData.msg || 'Failed to add activity'); // Set error message from backend
-        throw new Error(errorData.msg || 'Failed to add activity');
+        setErrorMessage(errorData.message || 'Failed to add activity'); // Set error message from backend
+        throw new Error(errorData.message || 'Failed to add activity');
       }
 
       setIsAdding(false); // Close the form after adding the activity
