@@ -43,7 +43,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('./login.jpg') no-repeat center center;
+  background: url('../../public/login.jpg') no-repeat center center;
   background-size: cover;
   animation: backgroundChange 20s infinite; /* Apply the animation over 10 seconds */
   z-index: -1; /* Place behind other components */
@@ -56,7 +56,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('./beach.jpg') no-repeat center center;
+  background: url('../../public/beach.jpg') no-repeat center center;
   background-size: cover;
   opacity: 0; /* Start with the second image invisible */
   animation: backgroundChange 20s infinite; /* Apply the same animation */
