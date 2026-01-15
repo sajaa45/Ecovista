@@ -78,7 +78,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 🛠 Challenges & Future Enhancements
+##  Challenges & Future Enhancements
 
 ### Challenges
 - Ensuring security and scalability.
@@ -90,11 +90,4 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 - **Multilingual Support**: Expand the platform's accessibility globally.
 - **Mobile App Development**: Provide on-the-go access to all platform features.
 
----
 
-
-This project is for educational purposes only and part of the Web Services Capstone Project (IT 325).
-
----
-
-### 🌟 Explore Ecotourism with Ecovista and Make a Sustainable Impact!
