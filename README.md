@@ -4,7 +4,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 🌍 Features
+##  Features
 
 - **Eco-Friendly Destinations**: A searchable database of eco-tourism destinations.
 - **Sustainable Activities**: A curated list of eco-conscious activities for users to explore.
@@ -14,7 +14,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 1. **Introduction**:
    - Problem: Limited access to reliable platforms for discovering sustainable travel options in Tunisia.
@@ -39,7 +39,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 💻 Code Overview
+##  Code Overview
 
 - **Frontend**: Developed with React for a dynamic and engaging user experience.
 - **Backend**: Built with RESTful principles for efficient communication between frontend and backend.
@@ -48,7 +48,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 📊 Tools & Technologies
+##  Tools & Technologies
 
 - **Languages**: JavaScript (React), Node.js
 - **Database**: MySQL
@@ -58,7 +58,7 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## 📈 Key Functionalities
+##  Key Functionalities
 
 1. **Eco-Friendly Destinations**:
    - Search and filter destinations.
@@ -92,13 +92,6 @@ Ecovista is a web-based platform designed to enhance ecotourism in Tunisia. It h
 
 ---
 
-## ✍️ Contributor
-
-- **Saja Moussa** (Junior IT & Business Analysis Major)
-
----
-
-## 📜 License
 
 This project is for educational purposes only and part of the Web Services Capstone Project (IT 325).
 
