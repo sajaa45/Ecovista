@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travelgroup-service
+  namespace: ecovista
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: travelgroup-service
+  template:
+    metadata:
+      labels:
+        app: travelgroup-service
+    spec:
+      containers:
+      - name: travelgroup-service
+        image: ecovista-travelgroup-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travelgroup-service
+  namespace: ecovista
+spec:
+  selector:
+    app: travelgroup-service
+  ports:
+  - port: 5005
+    targetPort: 5001
