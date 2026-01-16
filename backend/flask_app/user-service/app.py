@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from config import Config
 from extensions import db
 from routes.user_routes import bp as user_Blueprint
+from models.user import UserModel
 
 api = Api()
 
@@ -36,4 +37,6 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5006)
+    with app.app_context():
+        db.create_all()
+    app.run(host="0.0.0.0", port=5001)

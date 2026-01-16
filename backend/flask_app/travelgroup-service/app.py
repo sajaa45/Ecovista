@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from config import Config
 from extensions import db
 from routes.travel_group_routes import bp as travelgroups_Blueprint
+from models.travel_group import TravelGroupModel
 
 api = Api()
 
@@ -36,4 +37,6 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5005)
+    with app.app_context():
+        db.create_all()
+    app.run(host="0.0.0.0", port=5001)

@@ -1,17 +1,9 @@
+-- Initialize the ecovista database with all required tables
 
--- Table for Destinations
-CREATE TABLE Destinations (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT,
-    location VARCHAR(255),
-    image_url VARCHAR(255),
-    creator_id INT NOT NULL,
-    activities JSON NOT NULL
-);
+USE ecovista;
 
 -- Table for Users
-CREATE TABLE Users (
+CREATE TABLE IF NOT EXISTS Users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -22,8 +14,19 @@ CREATE TABLE Users (
     image_url VARCHAR(255)
 );
 
+-- Table for Destinations
+CREATE TABLE IF NOT EXISTS Destinations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+    location VARCHAR(255),
+    image_url VARCHAR(255),
+    creator_id INT NOT NULL,
+    activities JSON NOT NULL
+);
+
 -- Table for Activities
-CREATE TABLE Activities (
+CREATE TABLE IF NOT EXISTS Activities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
@@ -36,7 +39,7 @@ CREATE TABLE Activities (
 );
 
 -- Table for TravelGroups
-CREATE TABLE TravelGroups (
+CREATE TABLE IF NOT EXISTS TravelGroups (
     id INT AUTO_INCREMENT PRIMARY KEY,
     group_name VARCHAR(255) UNIQUE NOT NULL,
     destination VARCHAR(255) NOT NULL,
@@ -49,19 +52,8 @@ CREATE TABLE TravelGroups (
     members JSON NOT NULL
 );
 
--- Table for Bookings
-CREATE TABLE Bookings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    destination_id INT NOT NULL,
-    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('confirmed', 'canceled', 'pending')),
-    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
-    FOREIGN KEY (destination_id) REFERENCES Destinations(id) ON DELETE CASCADE
-);
-
 -- Table for Reviews
-CREATE TABLE Reviews (
+CREATE TABLE IF NOT EXISTS Reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255),
     image_url VARCHAR(255),
@@ -69,8 +61,5 @@ CREATE TABLE Reviews (
     destination VARCHAR(255) NOT NULL,
     rating INT NOT NULL,
     comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-
-SHOW TABLES;
-
