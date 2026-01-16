@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddDestination } from './AddDestination'; // Assuming AddDestination is a child component
@@ -14,7 +14,7 @@ const DestinationPage = () => {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/destinations');
+        const response = await fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations`);
         if (!response.ok) {
           throw new Error('Failed to fetch destinations');
         }
@@ -32,7 +32,7 @@ const DestinationPage = () => {
   const handleDestinationAdded = () => {
     // Fetch the latest destinations after adding a new one
     const fetchDestinations = async () => {
-      const response = await fetch('http://127.0.0.1:5000/destinations');
+      const response = await fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations`);
       const data = await response.json();
       setDestinations(data);
     };

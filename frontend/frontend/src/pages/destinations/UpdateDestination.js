@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const UpdateDestination = ({ destination, onUpdateSuccess, onCancel }) => {
@@ -23,7 +23,7 @@ const UpdateDestination = ({ destination, onUpdateSuccess, onCancel }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/destinations/${destination.name}`, {
+      const response = await fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations/${destination.name}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

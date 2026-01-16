@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/App.css'; // Add this line to import your CSS file
 
@@ -19,7 +19,7 @@ function SignupPage() {
             return;
         }
         try {
-            const response = await fetch('http://127.0.0.1:5000/auth/sign-up', {
+            const response = await fetch(`${process.env.REACT_APP_AUTH_API}/auth/sign-up`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

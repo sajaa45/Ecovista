@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'; // To access the cookie for JWT token
 import { jwtDecode } from 'jwt-decode'; // To decode the JWT token
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import UpdateActivity from './UpdateActivity'; // Import the UpdateActivity component
@@ -36,7 +36,7 @@ const ActivityItem = () => {
 
   const fetchActivityDetails = async (name) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/activity/${name}`);
+      const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity/${name}`);
       if (!response.ok) {
         throw new Error('Failed to fetch activity details');
       }
@@ -56,7 +56,7 @@ const ActivityItem = () => {
         return;
       }
   
-      fetch(`http://127.0.0.1:5000/activity/${activity.name}`, {
+      fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity/${activity.name}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

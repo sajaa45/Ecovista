@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddGroup } from './AddGroup';
@@ -13,7 +13,7 @@ const GroupPage = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/travel-group');
+        const response = await fetch(`${process.env.REACT_APP_TRAVELGROUP_API}/travel-group`);
         if (!response.ok) {
           throw new Error('Failed to fetch travel groups');
         }

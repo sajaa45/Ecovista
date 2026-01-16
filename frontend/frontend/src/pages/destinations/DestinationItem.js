@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddReview } from '../reviews/AddReview';
@@ -28,7 +28,7 @@ const DestinationItem = () =>  {
 
   const fetchDestinationDetails = async (name) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/destinations/${name}`);
+      const response = await fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations/${name}`);
       if (!response.ok) {
         throw new Error('Failed to fetch destination details');
       }
@@ -69,7 +69,7 @@ const DestinationItem = () =>  {
         return;
       }
 
-      fetch(`http://127.0.0.1:5000/destinations/${destination.name}`, {
+      fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations/${destination.name}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'; // Import js-cookie to manage cookies
-import React, { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 // Create the context
 export const UserContext = createContext();
@@ -52,7 +52,7 @@ export const UserProvider = ({ children }) => {
     Cookies.remove('username');
     setUsername(null);
     // You can handle logout API call
-    fetch("http://127.0.0.1:5000/auth/logout", {
+    fetch(`${process.env.REACT_APP_AUTH_API}/auth/logout`, {
       method: "POST",
     })
     .then(response => {

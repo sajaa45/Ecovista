@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const AddDestination = ({ setIsAdding, onDestinationAdded }) => {
     const [name, setName] = useState('');
@@ -24,7 +24,7 @@ export const AddDestination = ({ setIsAdding, onDestinationAdded }) => {
       }
   
       try {
-        const response = await fetch('http://127.0.0.1:5000/destinations', {
+        const response = await fetch(`${process.env.REACT_APP_DESTINATION_API}/destinations`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',

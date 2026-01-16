@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export function AddReview({ children, buttonText = "Open Modal", title = "Modal", isOpen, setIsOpen, name, id, username, img }) {
   const [showForm, setShowForm] = useState(true); // State to toggle form visibility
@@ -31,8 +31,8 @@ export function AddReview({ children, buttonText = "Open Modal", title = "Modal"
       if (!token) {
         throw new Error('Missing JWT token. Please log in.');
       }
-  
-      const response = await fetch('http://127.0.0.1:5000/review', {
+
+      const response = await fetch(`${process.env.REACT_APP_REVIEW_API}/review`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

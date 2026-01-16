@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'; // Make sure to import your cookie library
 import { jwtDecode } from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import UpdateGroup from './UpdateGroup'; // Import the UpdateGroup component
@@ -38,7 +38,7 @@ const GroupItem = () => {
     if (!currentUser) return; // Ensure user details are loaded first
     setLoading(true);
     setError(null); // Reset error state on new fetch
-    fetch(`http://127.0.0.1:5000/travel-group/${group_name}`)
+    fetch(`${process.env.REACT_APP_TRAVELGROUP_API}/travel-group/${group_name}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch data');
@@ -73,7 +73,7 @@ const GroupItem = () => {
       }
   
       // Update the group members on the backend (Join or Leave)
-      fetch(`http://127.0.0.1:5000/travel-group/${group_name}/${action}`, {
+      fetch(`${process.env.REACT_APP_ACTIVITY_API}/travel-group/${group_name}/${action}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ const GroupItem = () => {
         return;
       }
 
-      fetch(`http://127.0.0.1:5000/travel-group/${group_name}`, {
+      fetch(`${process.env.REACT_APP_TRAVELGROUP_API}/travel-group/${group_name}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

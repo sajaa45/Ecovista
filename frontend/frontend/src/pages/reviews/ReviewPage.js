@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 
@@ -19,7 +19,7 @@ const ReviewPage = () => {
       }
 
       try {
-        const response = await fetch('http://127.0.0.1:5000/review', {
+        const response = await fetch(`${process.env.REACT_APP_REVIEW_API}/review`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`, // Authorization with token

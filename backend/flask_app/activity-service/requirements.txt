@@ -1,0 +1,9 @@
+Flask
+flask-smorest
+flask-cors
+flask-jwt-extended
+flask-sqlalchemy
+flask-migrate
+pymysql
+cryptography
+python-dotenv

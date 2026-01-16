@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const UpdateActivity = ({ activity, onUpdateSuccess, onCancel }) => {
@@ -27,7 +27,7 @@ const UpdateActivity = ({ activity, onUpdateSuccess, onCancel }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/activity/${activity.name}`, {
+      const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity/${activity.name}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
