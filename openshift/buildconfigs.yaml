@@ -1,0 +1,154 @@
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: auth-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: auth-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: auth-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: activity-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: activity-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: activity-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: destination-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: destination-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: destination-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: review-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: review-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: review-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: travelgroup-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: travelgroup-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: travelgroup-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: user-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: user-service:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: user-service
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: frontend:latest
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: frontend

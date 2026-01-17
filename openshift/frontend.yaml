@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/frontend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_AUTH_API
+          value: "https://auth-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_ACTIVITY_API
+          value: "https://activity-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_DESTINATION_API
+          value: "https://destination-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_REVIEW_API
+          value: "https://review-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_TRAVELGROUP_API
+          value: "https://travelgroup-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_USER_API
+          value: "https://user-service-ecovista.apps.na46r.prod.ole.redhat.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
