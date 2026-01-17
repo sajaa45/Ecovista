@@ -11,7 +11,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista.git  # Replace with your repo
     contextDir: backend/flask_app/auth-service
   strategy:
     type: Docker
@@ -96,7 +96,7 @@ metadata:
   name: review-service
 ---
 apiVersion: build.openshift.io/v1
-kind BuildConfig
+kind: BuildConfig
 metadata:
   name: travelgroup-service
 spec:
