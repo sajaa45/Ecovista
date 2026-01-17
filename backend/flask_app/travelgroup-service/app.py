@@ -14,13 +14,6 @@ api = Api()
 def create_app():
     app = Flask(__name__)
 
-    # CORS
-    CORS(
-        app,
-        supports_credentials=True,
-        resources={r"/*": {"origins": ["http://localhost:3000", "https://frontend-ecovista.apps.na46r.prod.ole.redhat.com"]}},
-    )
-
     # Config
     app.config.from_object(Config)
 
@@ -32,6 +25,15 @@ def create_app():
 
     # Register ONLY this service's blueprint
     api.register_blueprint(travelgroups_Blueprint)
+
+    # CORS configuration - Allow all origins for OpenShift
+    @app.after_request
+    def after_request(response):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Credentials'] = 'false'
+        return response
 
     return app
 
