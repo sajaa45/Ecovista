@@ -35,7 +35,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: backend/flask_app/activity-service
   strategy:
     type: Docker
