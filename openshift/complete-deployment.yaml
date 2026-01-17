@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:8.0
+        image: mysql:8.4
         ports:
         - containerPort: 3306
         env:
@@ -235,6 +235,182 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: destination-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: destination-service
+  template:
+    metadata:
+      labels:
+        app: destination-service
+    spec:
+      containers:
+      - name: destination-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/destination-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: destination-service
+spec:
+  selector:
+    app: destination-service
+  ports:
+  - port: 5003
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-service
+  template:
+    metadata:
+      labels:
+        app: review-service
+    spec:
+      containers:
+      - name: review-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/review-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-service
+spec:
+  selector:
+    app: review-service
+  ports:
+  - port: 5004
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travelgroup-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: travelgroup-service
+  template:
+    metadata:
+      labels:
+        app: travelgroup-service
+    spec:
+      containers:
+      - name: travelgroup-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/travelgroup-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travelgroup-service
+spec:
+  selector:
+    app: travelgroup-service
+  ports:
+  - port: 5005
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/user-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 5006
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: frontend
 spec:
   replicas: 1
@@ -251,6 +427,19 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/ecovista/frontend:latest
         ports:
         - containerPort: 3000
+        env:
+        - name: REACT_APP_AUTH_API
+          value: "https://auth-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_ACTIVITY_API
+          value: "https://activity-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_DESTINATION_API
+          value: "https://destination-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_REVIEW_API
+          value: "https://review-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_TRAVELGROUP_API
+          value: "https://travelgroup-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_USER_API
+          value: "https://user-service-ecovista.apps.na46r.prod.ole.redhat.com"
 ---
 apiVersion: v1
 kind: Service
@@ -299,6 +488,58 @@ spec:
   to:
     kind: Service
     name: activity-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: destination-service
+spec:
+  to:
+    kind: Service
+    name: destination-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: review-service
+spec:
+  to:
+    kind: Service
+    name: review-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: travelgroup-service
+spec:
+  to:
+    kind: Service
+    name: travelgroup-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: user-service
+spec:
+  to:
+    kind: Service
+    name: user-service
   port:
     targetPort: 5001
   tls:
