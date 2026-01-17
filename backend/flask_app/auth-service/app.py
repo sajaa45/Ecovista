@@ -14,11 +14,13 @@ api = Api()
 def create_app():
     app = Flask(__name__)
 
-    # CORS
+    # CORS - More permissive for OpenShift
     CORS(
         app,
-        supports_credentials=True,
-        resources={r"/*": {"origins": ["http://localhost:3000"]}},
+        origins="*",
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        supports_credentials=False
     )
 
     # Config
@@ -32,6 +34,14 @@ def create_app():
 
     # Register ONLY this service's blueprint
     api.register_blueprint(auth_Blueprint)
+ 
+    # Simple CORS headers for all responsesj
+    @app.after_request
+    def after_request(response):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+        return response
 
     return app
 

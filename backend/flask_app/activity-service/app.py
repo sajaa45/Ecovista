@@ -18,7 +18,7 @@ def create_app():
     CORS(
         app,
         supports_credentials=True,
-        resources={r"/*": {"origins": ["http://localhost:3000"]}},
+        resources={r"/*": {"origins": ["http://localhost:3000", "https://frontend-ecovista.apps.na46r.prod.ole.redhat.com"]}},
     )
 
     # Config
