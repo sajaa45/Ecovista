@@ -28,7 +28,7 @@ Since you're on Windows and having tar permission issues, use the web console:
 
 ### Step 5: Deploy Backend Services
 1. Click **"+Add"** → **"Import from Git"**
-2. Git Repo URL: `https://github.com/yourusername/ecovista.git` (your repo)
+2. Git Repo URL: `https://github.com/sajaa45/Ecovista` (your repo)
 3. Context Dir: `backend/flask_app/auth-service`
 4. Application Name: `ecovista`
 5. Name: `auth-service`

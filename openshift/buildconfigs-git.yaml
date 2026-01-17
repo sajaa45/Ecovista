@@ -59,7 +59,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: backend/flask_app/destination-service
   strategy:
     type: Docker
@@ -83,7 +83,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: backend/flask_app/review-service
   strategy:
     type: Docker
@@ -107,7 +107,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: backend/flask_app/travelgroup-service
   strategy:
     type: Docker
@@ -131,7 +131,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: backend/flask_app/user-service
   strategy:
     type: Docker
@@ -155,7 +155,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/yourusername/ecovista.git  # Replace with your repo
+      uri: https://github.com/sajaa45/Ecovista  # Replace with your repo
     contextDir: frontend/frontend
   strategy:
     type: Docker
