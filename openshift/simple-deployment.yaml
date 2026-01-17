@@ -1,0 +1,67 @@
+# Simple deployment using public images
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-simple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-simple
+  template:
+    metadata:
+      labels:
+        app: frontend-simple
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-simple
+spec:
+  selector:
+    app: frontend-simple
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frontend-simple
+spec:
+  to:
+    kind: Service
+    name: frontend-simple
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  default.conf: |
+    server {
+        listen 80;
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+    }
