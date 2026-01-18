@@ -1,0 +1,97 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frontend
+spec:
+  to:
+    kind: Service
+    name: frontend
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: auth-service
+spec:
+  to:
+    kind: Service
+    name: auth-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: activity-service
+spec:
+  to:
+    kind: Service
+    name: activity-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: destination-service
+spec:
+  to:
+    kind: Service
+    name: destination-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: review-service
+spec:
+  to:
+    kind: Service
+    name: review-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: travelgroup-service
+spec:
+  to:
+    kind: Service
+    name: travelgroup-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: user-service
+spec:
+  to:
+    kind: Service
+    name: user-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

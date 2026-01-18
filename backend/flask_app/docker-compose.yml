@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  activity-service:
+    build: ./activity-service
+    container_name: activity-service
+    ports:
+      - "5002:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  destination-service:
+    build: ./destination-service
+    container_name: destination-service
+    ports:
+      - "5003:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  review-service:
+    build: ./review-service
+    container_name: review-service
+    ports:
+      - "5004:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  travelgroup-service:
+    build: ./travelgroup-service
+    container_name: travelgroup-service
+    ports:
+      - "5005:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ecovista
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

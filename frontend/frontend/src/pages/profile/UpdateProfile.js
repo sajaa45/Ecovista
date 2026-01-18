@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const UpdateProfile = ({ user, onUpdateSuccess, onCancel }) => {
     const [formData, setFormData] = useState({
@@ -13,7 +13,6 @@ const UpdateProfile = ({ user, onUpdateSuccess, onCancel }) => {
     });
 
     const [errorMessage, setErrorMessage] = useState(''); // State for error messages
-    const [successMessage, setSuccessMessage] = useState(''); // State for success messages
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -25,7 +24,7 @@ const UpdateProfile = ({ user, onUpdateSuccess, onCancel }) => {
         const token = Cookies.get('jwt');
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/users/${user.username}`, {
+            const response = await fetch(`${process.env.REACT_APP_USER_API}/users/${user.username}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -38,13 +37,11 @@ const UpdateProfile = ({ user, onUpdateSuccess, onCancel }) => {
                 const errorData = await response.json();
                 // Set the error message from the response
                 setErrorMessage(errorData.message || 'Failed to update profile');
-                setSuccessMessage(''); // Clear any previous success messages
                 throw new Error('Failed to update profile');
             }
 
             const updatedUser  = await response.json();
             onUpdateSuccess(updatedUser ); // Call the success handler with updated user data
-            setSuccessMessage('Profile updated successfully!'); // Set success message
             setErrorMessage(''); // Clear any previous error messages
         } catch (error) {
             console.error('Error updating profile:', error);

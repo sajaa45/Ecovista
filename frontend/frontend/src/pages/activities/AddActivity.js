@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const AddActivity = ({ setIsAdding, refreshPage }) => {
   const [name, setName] = useState('');
@@ -26,7 +26,7 @@ export const AddActivity = ({ setIsAdding, refreshPage }) => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/activity', {
+      const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

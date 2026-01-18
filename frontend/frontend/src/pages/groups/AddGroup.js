@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const AddGroup = ({ setIsAdding }) => {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ export const AddGroup = ({ setIsAdding }) => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/travel-group', {
+      const response = await fetch(`${process.env.REACT_APP_TRAVELGROUP_API}/travel-group`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 import { AddActivity } from './AddActivity'; // Assuming AddActivity is a child component
@@ -14,7 +14,7 @@ const ActivityPage = () => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/activity');
+        const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity`);
         if (!response.ok) {
           throw new Error('Failed to fetch activities');
         }
@@ -43,7 +43,7 @@ const ActivityPage = () => {
   const refreshPage = async () => {
     setLoading(true); // Set loading to true while refetching
     try {
-      const response = await fetch('http://127.0.0.1:5000/activity');
+      const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/activity`);
       if (!response.ok) {
         throw new Error('Failed to fetch activities');
       }

@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { default as React, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/App.css';
 import { useRefresh } from '../auth/RefreshContext';
@@ -28,7 +28,7 @@ const UserItem = () => {
             }
             console.log(token)
             try {
-                const response = await fetch(`http://127.0.0.1:5000/users/${username}`, {
+                const response = await fetch(`${process.env.REACT_APP_USER_API}/users/${username}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`, // Add token to headers
@@ -68,7 +68,7 @@ const UserItem = () => {
         setIsDeleting(true); // Start the deletion process
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/users/${user.username}`, {
+            const response = await fetch(`${process.env.REACT_APP_ACTIVITY_API}/users/${user.username}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

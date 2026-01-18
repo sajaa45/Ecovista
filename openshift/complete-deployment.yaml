@@ -1,0 +1,546 @@
+# Complete EcoVista OpenShift Deployment
+# This file contains everything needed to deploy your app
+
+# 1. SECRETS - Database passwords and app secrets
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: cm9vdA==  # base64 encoded "root"
+  SECRET_KEY: bXlfc2VjcmV0X2tleQ==  # base64 encoded "my_secret_key"
+
+# 2. MYSQL DATABASE
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.4
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: "ecovista"
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      - name: init-script
+        configMap:
+          name: mysql-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init
+data:
+  schema.sql: |
+    CREATE DATABASE IF NOT EXISTS ecovista;
+    USE ecovista;
+    
+    CREATE TABLE IF NOT EXISTS Users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(80) UNIQUE NOT NULL,
+        email VARCHAR(120) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+    
+    CREATE TABLE IF NOT EXISTS Destinations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        location VARCHAR(200),
+        creator_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (creator_id) REFERENCES Users(id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS Activities (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        duration INT,
+        creator_id INT,
+        max_participants INT,
+        destinations TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (creator_id) REFERENCES Users(id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS Reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        rating INT NOT NULL,
+        comment TEXT,
+        user_id INT,
+        destination_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES Users(id),
+        FOREIGN KEY (destination_id) REFERENCES Destinations(id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS TravelGroups (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        creator_id INT,
+        destination_id INT,
+        max_members INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (creator_id) REFERENCES Users(id),
+        FOREIGN KEY (destination_id) REFERENCES Destinations(id)
+    );
+
+# 3. BACKEND SERVICES
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/auth-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 5001
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activity-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activity-service
+  template:
+    metadata:
+      labels:
+        app: activity-service
+    spec:
+      containers:
+      - name: activity-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/activity-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: activity-service
+spec:
+  selector:
+    app: activity-service
+  ports:
+  - port: 5002
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: destination-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: destination-service
+  template:
+    metadata:
+      labels:
+        app: destination-service
+    spec:
+      containers:
+      - name: destination-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/destination-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: destination-service
+spec:
+  selector:
+    app: destination-service
+  ports:
+  - port: 5003
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-service
+  template:
+    metadata:
+      labels:
+        app: review-service
+    spec:
+      containers:
+      - name: review-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/review-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-service
+spec:
+  selector:
+    app: review-service
+  ports:
+  - port: 5004
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travelgroup-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: travelgroup-service
+  template:
+    metadata:
+      labels:
+        app: travelgroup-service
+    spec:
+      containers:
+      - name: travelgroup-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/travelgroup-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travelgroup-service
+spec:
+  selector:
+    app: travelgroup-service
+  ports:
+  - port: 5005
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/user-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: SECRET_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 5006
+    targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: image-registry.openshift-image-registry.svc:5000/ecovista/frontend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_AUTH_API
+          value: "https://auth-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_ACTIVITY_API
+          value: "https://activity-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_DESTINATION_API
+          value: "https://destination-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_REVIEW_API
+          value: "https://review-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_TRAVELGROUP_API
+          value: "https://travelgroup-service-ecovista.apps.na46r.prod.ole.redhat.com"
+        - name: REACT_APP_USER_API
+          value: "https://user-service-ecovista.apps.na46r.prod.ole.redhat.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+
+# 4. EXTERNAL ACCESS ROUTES
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frontend
+spec:
+  to:
+    kind: Service
+    name: frontend
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: auth-service
+spec:
+  to:
+    kind: Service
+    name: auth-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: activity-service
+spec:
+  to:
+    kind: Service
+    name: activity-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: destination-service
+spec:
+  to:
+    kind: Service
+    name: destination-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: review-service
+spec:
+  to:
+    kind: Service
+    name: review-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: travelgroup-service
+spec:
+  to:
+    kind: Service
+    name: travelgroup-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: user-service
+spec:
+  to:
+    kind: Service
+    name: user-service
+  port:
+    targetPort: 5001
+  tls:
+    termination: edge

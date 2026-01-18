@@ -1,0 +1,118 @@
+version: "3.9"
+
+services:
+  auth-service:
+    build: ./backend/flask_app/auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
+  activity-service:
+    build: ./backend/flask_app/activity-service
+    ports:
+      - "5002:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
+  destination-service:
+    build: ./backend/flask_app/destination-service
+    ports:
+      - "5003:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
+  review-service:
+    build: ./backend/flask_app/review-service
+    ports:
+      - "5004:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
+  travelgroup-service:
+    build: ./backend/flask_app/travelgroup-service
+    ports:
+      - "5005:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+  user-service:
+    build: ./backend/flask_app/user-service
+    ports:
+      - "5006:5001"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+  frontend:
+    build: ./frontend/frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_AUTH_API: http://localhost:5001        # auth-service (5001:5001)
+      REACT_APP_ACTIVITY_API: http://localhost:5002    # activity-service (5002:5001)
+      REACT_APP_DESTINATION_API: http://localhost:5003 # destination-service
+      REACT_APP_REVIEW_API: http://localhost:5004      # review-service
+      REACT_APP_TRAVELGROUP_API: http://localhost:5005 # travelgroup-service
+      REACT_APP_USER_API: http://localhost:5006        # user-service
+
+
+    depends_on:
+      - auth-service
+      - activity-service
+      - destination-service
+      - review-service
+      - travelgroup-service
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ecovista
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+volumes:
+  mysql_data:

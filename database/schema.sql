@@ -1,43 +1,76 @@
 
 -- Table for Destinations
-create TABLE Destinations (
-    id INT AUTO_INCREMENT PRIMARY KEY,  -- Use INT for MySQL
-    name VARCHAR(255) NOT NULL,
+CREATE TABLE Destinations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
     location VARCHAR(255),
-    activities TEXT,
-    image_url VARCHAR(255)
+    image_url VARCHAR(255),
+    creator_id INT NOT NULL,
+    activities JSON NOT NULL
 );
 
 -- Table for Users
 CREATE TABLE Users (
-    id INT AUTO_INCREMENT PRIMARY KEY,  -- Use INT for MySQL
-    name VARCHAR(255) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,  -- Store hashed passwords
-    role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'admin'))  -- Role can be user or admin
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50),
+    image_url VARCHAR(255)
+);
+
+-- Table for Activities
+CREATE TABLE Activities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    duration INT NOT NULL,
+    creator_id INT NOT NULL,
+    max_participants INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    destinations JSON NOT NULL
+);
+
+-- Table for TravelGroups
+CREATE TABLE TravelGroups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    group_name VARCHAR(255) UNIQUE NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    description TEXT,
+    contact_info VARCHAR(255) NOT NULL,
+    creator_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    members JSON NOT NULL
 );
 
 -- Table for Bookings
 CREATE TABLE Bookings (
-    id INT AUTO_INCREMENT PRIMARY KEY,  -- Use INT for MySQL
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     destination_id INT NOT NULL,
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('confirmed', 'canceled', 'pending')),  -- Status of the booking
+    status VARCHAR(50) NOT NULL CHECK (status IN ('confirmed', 'canceled', 'pending')),
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destinations(id) ON DELETE CASCADE
 );
 
 -- Table for Reviews
 CREATE TABLE Reviews (
-    id INT AUTO_INCREMENT PRIMARY KEY,  -- Use INT for MySQL
-    user_id INT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255),
+    image_url VARCHAR(255),
     destination_id INT NOT NULL,
-    rating INT CHECK (rating >= 1 AND rating <= 5),  -- Rating between 1 and 5
+    destination VARCHAR(255) NOT NULL,
+    rating INT NOT NULL,
     comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
-    FOREIGN KEY (destination_id) REFERENCES Destinations(id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 SHOW TABLES;
+
