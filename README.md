@@ -30,6 +30,8 @@ Ecovista is a cloud-native, microservices-based web platform designed to enhance
 4. **User Interface:**
    * Responsive design built with React for intuitive navigation.
    * Key Screens: Login/Signup, Dashboard, Destination/Activity Details, Travel Groups.
+## Demo
+https://github.com/user-attachments/assets/70ba9b61-4ebb-4d33-9d77-73ebcfd18532
 
 ## Code Overview
 
